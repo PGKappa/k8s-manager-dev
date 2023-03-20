@@ -1,0 +1,108 @@
+.p-panel__content {
+  padding-top: 0px !important;
+}
+.p-panel__header {
+  padding-bottom: 1.5rem;
+}
+
+.placed-ticket > .page-section-header {
+  max-height: 80px;
+  min-height: 80px;
+}
+
+.ticket-details {
+  width: unset;
+  margin: unset;
+}
+
+$COLOR__PRIMARY: #b30013;
+$COLOR__PRIMARY_TEXT: white;
+$COLOR__SECONDARY: #8d000f;
+$COLOR__SECONDARY_TEXT: white;
+$COLOR__TERTIARY: #62010d;
+$COLOR__TERTIARY_TEXT: white;
+
+$PRIMARY_TEXT: #333;
+
+.page-section-header {
+  margin-bottom: 0px;
+  background-color: $COLOR__PRIMARY;
+  color: white;
+  font-weight: bold;
+  //font-size: 13px;
+
+  .button.close {
+    background-color: $COLOR__SECONDARY;
+  }
+
+  &.loading {
+    .v-ui-loader-spinner {
+      margin: 0 auto;
+      svg,
+      svg circle {
+        stroke: white;
+      }
+    }
+  }
+}
+
+// end header section color + loader
+
+.page-section-body {
+  background-color: #fff;
+  border-style: solid;
+  border-width: 1px;
+  border-top-style: none;
+  border-color: #e1e1e1;
+
+  .column {
+    margin-right: 2px;
+    > *:not(:first-of-type) {
+      margin-top: 2px;
+    }
+
+    &:last-of-type {
+      border-right-style: none;
+      margin-right: 0;
+    }
+  }
+}
+
+.event-item {
+  .market-item-list {
+    .market-item {
+      border-left: 1px solid #e1e1e1;
+      border-right: 1px solid #e1e1e1 !important;
+
+      &:last-of-type {
+        border-bottom: 1px solid #e1e1e1;
+      }
+    }
+  }
+}
+
+.placed-ticket {
+  > .body .loader svg {
+    stroke: $COLOR__PRIMARY;
+  }
+  .header {
+    background-color: $COLOR__PRIMARY;
+  }
+}
+
+.page-section-list-item {
+  border-bottom: 1px solid #e1e1e1;
+  background-color: #fff;
+
+  &:last-of-type {
+    border-bottom: 0px;
+  }
+
+  &:hover {
+    background-color: #f1f3f4;
+  }
+}
+
+.placed-ticket-event-item .page-section-list-item {
+  color: black !important;
+}

@@ -1,0 +1,31 @@
+{
+  "version": "3.0.24",
+  "name": "pgvirtual/manager",
+  "description": "Manager package of PG Virtual Platform",
+  "authors": [
+    {
+      "name": "Fabio Armango",
+      "email": "jelsinor@gmail.com"
+    }
+  ],
+  "minimum-stability": "dev",
+  "require": {
+    "laravel/sanctum": "^2.11"
+  },
+  "autoload": {
+    "psr-4": {
+      "PGVirtual\\Manager\\": "src/"
+    }
+  },
+  "extra": {
+    "laravel": {
+      "providers": [
+        "PGVirtual\\Manager\\ManagerServiceProvider"
+      ]
+    }
+  },
+  "require-dev": {
+    "laravel/pint": "dev-main",
+    "squizlabs/php_codesniffer": "4.0.x-dev"
+  }
+}

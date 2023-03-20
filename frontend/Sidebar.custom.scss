@@ -1,0 +1,29 @@
+.sidebar .p-accordion__tab {
+  color: white;
+  span {
+    color: white;
+    margin-left: 10px;
+  }
+}
+
+.sidebar .p-accordion__tab[aria-expanded="true"] {
+  background-color: transparent !important;
+}
+
+.sidebar .p-accordion__heading {
+  button {
+    background-color: transparent !important;
+  }
+}
+
+.sidebar .p-accordion__panel > * {
+  color: white;
+}
+
+.p-side-navigation__accordion-button:hover {
+    background: silver !important;
+}
+
+.p-side-navigation__link:hover {
+    background: silver !important;
+}

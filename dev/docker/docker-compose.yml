@@ -1,0 +1,15 @@
+version: "3"
+  build:
+    image: node:18-alpine3.15
+    # command: tail -F anything
+    container_name: mix
+    volumes_from:
+      - php
+    ports:
+      - 9222:9222
+    working_dir: /var/www
+    command: sh -c "yarn set version berry; yarn install; yarn build; yarn export;"
+    # yarn prod for prod build , watch for dev with automatic reload
+    environment:
+      - PG_UI__PGV__ICONS_PUBLISH_PATH=/var/www/public/assets
+      - PG_UI__PGV__ICONS_PUBLIC_PATH=/assets

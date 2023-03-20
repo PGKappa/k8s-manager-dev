@@ -1,0 +1,66 @@
+// See this url for all available color settings
+// > https://vanillaframework.io/docs/settings/color-settings
+
+// $color-x-light: yellow;
+// $color-light: green;
+// $color-mid-x-light: lightblue;
+// $color-mid-light: red;
+// $color-mid-dark: red;
+// $color-dark: #12324a;
+// $color-x-dark: red;
+// $color-brand: red;
+// $color-negative: yellow;
+// $color-caution: red;
+// $color-positive: red;
+// $color-information: red;
+// $color-link: red;
+// $color-accent: red;
+// $color-accent-background: red;
+
+body {
+  overflow: hidden;
+}
+
+.l-navigation-bar .p-panel,
+.l-navigation,
+.l-navigation .l-navigation__drawer .p-panel,
+.p-navigation,
+.p-navigation.is-dark {
+  background-color: #12324a;
+}
+
+@media (min-width: 460px) {
+  .l-navigation .p-panel .p-panel__header .p-panel__controls {
+    display: none;
+  }
+}
+
+@media (max-width: 460px) {
+  .l-application .l-navigation.is-collapsed:focus-within {
+    transform: translateX(-100%);
+  }
+}
+
+#navigation {
+  border-bottom: 2px solid #ddd;
+}
+
+.left.p-icon--chevron-up {
+  transform: rotate(90deg);
+}
+
+.right.p-icon--chevron-down {
+  transform: rotate(-90deg);
+}
+
+.is-dark %table-row-border {
+  border-top: 1px solid rgba(255, 255, 255, 1);
+}
+%table-row-border {
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.is-dark thead tr {
+  border-bottom: 1px solid rgba(255, 255, 255, 1);
+  vertical-align: top;
+}

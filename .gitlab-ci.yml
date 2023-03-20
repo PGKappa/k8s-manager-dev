@@ -1,0 +1,171 @@
+stages:
+  - build  
+  - test
+  - prepare-publish
+  - export-assets
+  - publish
+  - deploy
+
+# build-job -> lint + unit => prepare-publish-job -> publish job   => manual deploy to staging 
+
+build-job:
+  image: node:18-alpine3.15
+  stage: build
+  tags:
+    - k8s-gitlab-runner
+    - kubernetes
+  before_script:
+    - apk add --no-cache git openssh
+  script:
+    - |-
+      echo -e "nodeLinker: node-modules
+      npmScopes:
+        "pg-ui":
+          npmRegistryServer: "https://git.xpegma.eu/api/v4/projects/196/packages/npm/"
+          npmPublishRegistry: "https://git.xpegma.eu/api/v4/projects/196/packages/npm/"
+      npmRegistries:
+        "https://git.xpegma.eu/api/v4/projects/196/packages/npm/":
+          npmAlwaysAuth: true
+          npmAuthToken: "${CI_JOB_TOKEN}"
+      " > .yarnrc.yml
+    - cat .yarnrc.yml
+    - yarn set version berry
+    - YARN_ENABLE_IMMUTABLE_INSTALLS=false yarn install
+    - yarn build
+    - mkdir tmp || true
+    - yarn export
+    - ls -al 
+  artifacts:
+    paths:
+      - out
+      - images
+      # - mix-manifest.json
+      - .next 
+
+  only:
+    - dev
+    - master
+  variables:
+    PG_UI__PGV__ICONS_PUBLISH_PATH: /var/www/public/assets
+    PG_UI__PGV__ICONS_PUBLIC_PATH: /manager/images
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}
+    paths:
+      - node_modules/
+      - .next/cache/
+
+
+# unit-test-job:
+#   stage: test
+#   script:
+#     - echo "Running unit tests... This will take about 2 seconds."
+#     - sleep 2
+#     - echo "Code coverage is 0%"
+#   except:
+#     - package-release
+
+# lint-test-job:
+#   stage: test
+#   script:
+#     - echo "Linting code... This will take about 1 second."
+#     - sleep 1
+#     - echo "No lint."
+#   except:
+#     - package-release
+
+prepare-publish-job:
+  stage: prepare-publish
+  image: timbru31/node-alpine-git:12
+  script:
+    - git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@git.xpegma.eu/pgvirtual/manager.git
+    - cd manager    
+    #- mv ../manager-assets public # This is the folder containing the frontend bundle we want to provide our users with.
+    - mv ../out public
+    # - mv ../images/vendor/@pg-ui/pgv/dist/partners/pg/icons public/images # This is the folder containing the frontend bundle we want to provide our users with.
+    - mv ../.next public/.next 
+    - mv ../games public/games
+    # - mv ../mix-manifest.json public # This is the folder containing the frontend bundle we want to provide our users with.
+    - rm -rf frontend
+    - rm -rf dev
+    - rm -rf yarn.lock
+    - rm -rf tsconfig.json
+    - rm -rf webpack.mix.js
+    - rm -rf package.json
+    - rm -rf .yarnrc.yml
+    - git config --global user.name "$GITLAB_USER_NAME"
+    - git config --global user.email "$GITLAB_USER_EMAIL"
+    - git branch package-release || true
+    - git checkout package-release
+    - git add .
+    - git commit -m "update"
+    - 'git remote set-url origin "https://${WRITEREPO_USER}:${WRITEREPO_TOKEN}@${CI_SERVER_HOST}/$CI_PROJECT_PATH.git"'
+    #- git remote set-url origin "https://gitlab-ci-token:$CI_JOB_TOKEN@$CI_SERVER_HOST/$CI_PROJECT_PATH.git"
+    - git push -f origin package-release -o=merge_request.merge_when_pipeline_succeded
+  artifacts:
+    paths:
+      - manager/public
+  only:
+    - dev
+    - master
+
+publish-job:
+  stage: publish
+  image: alpine/curl:latest
+  script:
+    - 'curl --header "Job-Token: $CI_JOB_TOKEN" --data branch=package-release "${CI_API_V4_URL}/projects/$CI_PROJECT_ID/packages/composer"'
+
+  only:
+   - dev
+   - master
+
+
+export-assets:
+  stage: export-assets
+  only:
+    - dev
+    - master
+  script:
+    - ls -la
+    - echo 'export done.'
+    - mv manager/public out
+  artifacts:
+    paths:
+      - out
+  needs: 
+    - job: prepare-publish-job
+      artifacts: true
+  dependencies: 
+    - prepare-publish-job
+  tags:
+    - k8s-gitlab-runner
+    - kubernetes
+
+# Deprecated Stanleybet
+
+# update-to-staging:
+#   when: manual
+#   stage: deploy
+#   image: kroniak/ssh-client
+#   tags:
+#     - k8s-gitlab-runner
+#     - kubernetes
+#   script:
+#     - mkdir mkdir -p ~/.ssh
+#     - chmod 700 ~/.ssh
+#     - echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
+#     - echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+#     - chmod 600 ~/.ssh/id_rsa
+#     - read -a host <<< "$SSH_HOST"
+#     - ssh ${host[1]} -l ${host[0]} -p ${host[2]} "cd $RELEASE_DIR_PATH"
+#     - echo "I'm in !"
+#     - ssh ${host[1]} -l ${host[0]} -p ${host[2]} "cd $RELEASE_DIR_PATH; composer req pgvirtual/manager:dev-package-release"    
+   
+#     # - ssh ${host[1]} -l ${host[0]} -p ${host[2]} "cd $RELEASE_DIR_PATH; composer update pgvirtual/manager"
+#     # - ssh ${host[1]} -l ${host[0]} -p ${host[2]} "cd $RELEASE_DIR_PATH; ls -al public/manager-assets" //
+#     - ssh ${host[1]} -l ${host[0]} -p ${host[2]} "cd $RELEASE_DIR_PATH; rm -rf public/manager-assets"
+#     - ssh ${host[1]} -l ${host[0]} -p ${host[2]} "cd $RELEASE_DIR_PATH; php artisan vendor:publish --provider='PGVirtual\Manager\ManagerServiceProvider'"
+#     - ssh ${host[1]} -l ${host[0]} -p ${host[2]} "cd $RELEASE_DIR_PATH; ls -al public/manager-assets/js" 
+#     # - ssh ${host[1]} -l ${host[0]} -p ${host[2]} "cd $RELEASE_DIR_PATH; date -r public/manager-assets/js/832.js"
+#     - echo "Hacked!"
+# only:
+#   - dev
