@@ -83,7 +83,7 @@ Route::group(['middleware' => [
         Route::get('/viewers', [PGVirtual\Manager\Controllers\ViewerController::class, 'index'])->name('manager-viewers');
         Route::post('/viewers/create', [PGVirtual\Manager\Controllers\ViewerController::class, 'store'])->name('manager-viewers.store');
         Route::get('/viewers/create', [PGVirtual\Manager\Controllers\ViewerController::class, 'create'])->name('manager-viewers.create');
-        Route::get('/viewers/{id}', [PGVirtual\Manager\Controllers\ViewerController::class, 'show'])->name('manager-viewers.create');
+        Route::get('/viewers/{id}', [PGVirtual\Manager\Controllers\ViewerController::class, 'show'])->name('manager-viewers.show');
         Route::post('/viewers/{id}', [PGVirtual\Manager\Controllers\ViewerController::class, 'update'])->name('manager-viewers.update');
         Route::delete('/viewers/{id}', [PGVirtual\Manager\Controllers\ViewerController::class, 'destroy'])->name('manager-viewers.destroy');
     });
