@@ -2491,20 +2491,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@pg-ui/components@npm:^1.0.31":
-  version: 1.0.31
-  resolution: "@pg-ui/components@npm:1.0.31::__archiveUrl=https%3A%2F%2Fgit.xpegma.eu%2Fapi%2Fv4%2Fprojects%2F196%2Fpackages%2Fnpm%2F%40pg-ui%2Fcomponents%2F-%2F%40pg-ui%2Fcomponents-1.0.31.tgz"
-  dependencies:
-    react: ^18.1.0
-    react-loader-spinner: ^6.0.0-0
-  peerDependencies:
-    react: "*"
-    react-dom: "*"
-    react-loader-spinner: "*"
-  checksum: fbe5749b80160294c20e6de5f1de56d269f257017eed5dce360e0f8891cea0e4f19a03433652f7c3a0c177aa0ebab1f2a09b537906f318e9d087982723895e0a
-  languageName: node
-  linkType: hard
-
 "@pg-ui/components@npm:^1.0.32":
   version: 1.0.32
   resolution: "@pg-ui/components@npm:1.0.32::__archiveUrl=https%3A%2F%2Fgit.xpegma.eu%2Fapi%2Fv4%2Fprojects%2F196%2Fpackages%2Fnpm%2F%40pg-ui%2Fcomponents%2F-%2F%40pg-ui%2Fcomponents-1.0.32.tgz"
@@ -2526,7 +2512,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@pg-ui/i18n@npm:^1.0.13, @pg-ui/i18n@npm:^1.0.18":
+"@pg-ui/i18n@npm:^1.0.18":
   version: 1.0.18
   resolution: "@pg-ui/i18n@npm:1.0.18::__archiveUrl=https%3A%2F%2Fgit.xpegma.eu%2Fapi%2Fv4%2Fprojects%2F196%2Fpackages%2Fnpm%2F%40pg-ui%2Fi18n%2F-%2F%40pg-ui%2Fi18n-1.0.18.tgz"
   dependencies:
@@ -2537,7 +2523,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@pg-ui/pgv@npm:^1.0.103":
+"@pg-ui/pgv@npm:^1.0.119":
   version: 1.0.119
   resolution: "@pg-ui/pgv@npm:1.0.119::__archiveUrl=https%3A%2F%2Fgit.xpegma.eu%2Fapi%2Fv4%2Fprojects%2F196%2Fpackages%2Fnpm%2F%40pg-ui%2Fpgv%2F-%2F%40pg-ui%2Fpgv-1.0.119.tgz"
   dependencies:
@@ -10519,10 +10505,10 @@ __metadata:
     "@canonical/react-components": ^0.37.1
     "@headlessui/react": ^1.4.2
     "@next/eslint-plugin-next": ^10.0.4
-    "@pg-ui/components": ^1.0.31
+    "@pg-ui/components": ^1.0.32
     "@pg-ui/device": ^1.0.1
-    "@pg-ui/i18n": ^1.0.13
-    "@pg-ui/pgv": ^1.0.103
+    "@pg-ui/i18n": ^1.0.18
+    "@pg-ui/pgv": ^1.0.119
     "@pg-ui/theme-stanleybet": ^1.0.0
     "@tailwindcss/forms": ^0.5.2
     "@testing-library/jest-dom": ^5.14.1
@@ -10578,7 +10564,7 @@ __metadata:
     ts-loader: ^9.3.0
     typescript: ^4.7.2
     url-loader: ^4.1.1
-    vanilla-framework: ^3.8.2
+    vanilla-framework: ^3.12.1
     web-vitals: ^2.1.0
     webpack: ^5.72.0
     webpack-cli: ^4.9.2
@@ -12687,14 +12673,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"postcss@npm:8.4.19, postcss@npm:^8.4.18, postcss@npm:^8.4.6":
-  version: 8.4.19
-  resolution: "postcss@npm:8.4.19"
+"postcss@npm:8.4.21":
+  version: 8.4.21
+  resolution: "postcss@npm:8.4.21"
   dependencies:
     nanoid: ^3.3.4
     picocolors: ^1.0.0
     source-map-js: ^1.0.2
-  checksum: 62782723a385f92b7525f66d29614624de7c5643855423db3a5efd9287e677650300192749adddbbb6734cea9b1d5f5fd4f6ea00ca3f9a95dbbb88f835f5ca64
+  checksum: e39ac60ccd1542d4f9d93d894048aac0d686b3bb38e927d8386005718e6793dbbb46930f0a523fe382f1bbd843c6d980aaea791252bf5e176180e5a4336d9679
   languageName: node
   linkType: hard
 
@@ -12716,6 +12702,17 @@ __metadata:
     picocolors: ^1.0.0
     source-map-js: ^1.0.2
   checksum: 10eee25efd77868036403858577da0cefaf2e0905feeaba5770d5438ccdddba3d01cba8063e96b8aac4c6daa0ed413dd5ae0554a433a3c4db38df1d134cffc1f
+  languageName: node
+  linkType: hard
+
+"postcss@npm:^8.4.18, postcss@npm:^8.4.6":
+  version: 8.4.19
+  resolution: "postcss@npm:8.4.19"
+  dependencies:
+    nanoid: ^3.3.4
+    picocolors: ^1.0.0
+    source-map-js: ^1.0.2
+  checksum: 62782723a385f92b7525f66d29614624de7c5643855423db3a5efd9287e677650300192749adddbbb6734cea9b1d5f5fd4f6ea00ca3f9a95dbbb88f835f5ca64
   languageName: node
   linkType: hard
 
@@ -13966,16 +13963,16 @@ react-charts@beta:
   languageName: node
   linkType: hard
 
-"sass@npm:1.56.1":
-  version: 1.56.1
-  resolution: "sass@npm:1.56.1"
+"sass@npm:1.58.3":
+  version: 1.58.3
+  resolution: "sass@npm:1.58.3"
   dependencies:
     chokidar: ">=3.0.0 <4.0.0"
     immutable: ^4.0.0
     source-map-js: ">=0.6.2 <2.0.0"
   bin:
     sass: sass.js
-  checksum: 78e693e5992b149574c95d5adfe39ca3e5b97d80befa11191a20d1daa41fe201a98ac099beab726cd3095e2d2e7991a2c408ba0fcc3fa9f525879de7eee18dad
+  checksum: 35a2b98c037ef80fdc93c9b0be846e6ccc7d75596351a37ee79c397e66666d0a754c52c4696e746c0aff32327471e185343ca349e998a58340411adc9d0489a5
   languageName: node
   linkType: hard
 
@@ -15653,19 +15650,19 @@ react-charts@beta:
   languageName: node
   linkType: hard
 
-"vanilla-framework@npm:^3.8.2":
-  version: 3.9.0
-  resolution: "vanilla-framework@npm:3.9.0"
+"vanilla-framework@npm:^3.12.1":
+  version: 3.12.1
+  resolution: "vanilla-framework@npm:3.12.1"
   dependencies:
     "@canonical/cookie-policy": 3.4.0
     "@canonical/latest-news": 1.4.1
     autoprefixer: 10.4.13
-    postcss: 8.4.19
+    postcss: 8.4.21
     postcss-cli: 9.1.0
     postcss-scss: 4.0.6
-    sass: 1.56.1
+    sass: 1.58.3
     yaml: 1.10.2
-  checksum: 4f4055e80cce1a856cf429192c4c8e706f77b86945f731cffc39c8dcc105b58deb39a6af2b61247d3a3e4fa44a2d9ed58d71e75ae57067db78c49fa6d95b597b
+  checksum: fb935d51513902a80ed8a98fbb3c399e036ef6e9596b543f123f82f2e88b41b9b6568ade6e7bf6c215af6b89c8d3a567424fff44cc3e374fc9bb29cc3bbefe0a
   languageName: node
   linkType: hard
 
