@@ -6,3 +6,5 @@ out
 frontend/next-env.d.ts
 vendor
 composer.lock
+
+.yarnrc.yml
