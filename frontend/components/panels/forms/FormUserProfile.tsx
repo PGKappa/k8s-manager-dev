@@ -93,7 +93,7 @@ const FormUserProfile = ({
         id={"language"}
         className={isDarkMode ? "is-dark" : ""}
         defaultValue={formData ? formData.language : ""}
-        label={t('user.panel.language')}
+        label={t('user.panel.language.label')}
         required
         options={languages}
         onChange={(e) => {

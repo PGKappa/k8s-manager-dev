@@ -1,4 +1,4 @@
-export const english = {
+export const enDict = {
   // dict: new Dict().setData({
   login: {
     title: "Login",

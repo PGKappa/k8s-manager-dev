@@ -12,10 +12,11 @@ import "react-toastify/dist/ReactToastify.css";
 import "react-datepicker/dist/react-datepicker.css";
 // import Tour from "@/components/Tour";
 // import Intro from "@/components/Intro/Intro";
-import "intro.js/introjs.css";
+// import "intro.js/introjs.css";
 
 import { ToastContainer } from "react-toastify";
 import TOURS from "@/tours";
+
 import React, {
   useEffect,
   useMemo,
@@ -33,12 +34,18 @@ import {
   TourContext,
 } from "@/context";
 import { DictionaryContext, Dict } from "@pg-ui/i18n";
-import { english } from "@/locale/en";
+import { enDict } from "@/locale/en";
+import { itDict } from "@/locale/it";
 import { useRouter } from "next/router";
-import { Steps } from "intro.js-react";
+// import { Steps } from "intro.js-react";
+// import Tour from "reactour";
+// import dynamic from "next/dynamic";
+import { useTour, TourProvider } from "@reactour/tour";
 
+// const TourNoSSR = dynamic(() => import("reactour"), { ssr: false });
 function isDescendant(parent, child) {
   var node = child.parentNode;
+
   while (node != null) {
     if (node == parent) {
       return true;
@@ -53,14 +60,16 @@ const App = ({ Component, pageProps }) => {
     [themeDarkMode, setThemeDarkMode] = useState<boolean>(),
     themeId = "pg",
     [isLoading, setIsloading] = useState<boolean>(true),
-    { pathname, query } = useRouter(),
+    // { pathname, query } = useRouter(),
     sidePanelRef = useRef();
-  // ,[tour, setTour] = useState({
-  //   run: false,
-  //   stepIndex: 0,
-  //   steps: [],
-  //   tourActive: false,
-  // });
+  const [language, setLanguage] = useState<string>("EN"),
+    [tour, setTour] = useState({
+      run: false,
+      stepIndex: 0,
+      steps: [],
+      tourActive: false,
+    });
+
   const router = useRouter();
   const [currentTour, setCurrentTour] = useState({
     name: "",
@@ -130,36 +139,64 @@ const App = ({ Component, pageProps }) => {
         closeAsidePanel: closeAsidePanel,
       }),
       [asidePanel, closeAsidePanel]
+    ),
+    dictionaryContextValue = useMemo(
+      () => ({
+        dict:
+          language == "EN"
+            ? new Dict().setData(enDict)
+            : new Dict().setData(itDict),
+        language: language,
+        setLanguage: setLanguage,
+      }),
+      [language, setLanguage]
     );
+
+  //   const { isOpen, currentStep, steps } = useTour(); // not usable because its in parent
+
+  //   console.warn("currentStep", currentStep);
+  //   console.warn("asidePanel before handleSide", asidePanel);
 
   const handleSidePanelOutsideClick = useCallback(
     (e) => {
-      //   console.warn("tour.run", tour && tour.run);
-      //   if (tour.run) return true;
-      if (isEnabled) return true;
+      //   console.warn(document.querySelector(".reactour__popover"));
+      //   console.warn(
+      //     "isDescendant",
+      //     isDescendant(e.target, document.querySelector(".reactour__popover"))
+      //   );
+      //   console.warn("target", e.target);
+      //   console.warn("asidePanel.isOpen", asidePanel.isOpen);
+
+      if (!tour.run) {
+        return true;
+      }
       if (!isDescendant(sidePanelRef.current, e.target)) {
+        console.warn("closeing AsidePanel");
         closeAsidePanel();
+        // document.removeEventListener("click");
       }
     },
-    [asidePanel, isSidebarCollapsed] //tour
+    [asidePanel, isSidebarCollapsed , tour] //tour
   );
 
   useEffect(() => {
+    console.warn("alalalalalala",asidePanel.isOpen);
     if (asidePanel.isOpen) {
       clearTimeout(asidePanelCloseTimeout.current);
       asidePanelCloseTimeout.current = setTimeout(() => {
         document.addEventListener("click", handleSidePanelOutsideClick, true);
       }, 1000);
     } else {
+    //   console.warn("removing listener");
       clearTimeout(asidePanelCloseTimeout.current);
-      document.removeEventListener("click", handleSidePanelOutsideClick);
+      document.removeEventListener("click", handleSidePanelOutsideClick, true);
     }
 
     return () => {
-      clearTimeout(asidePanelCloseTimeout.current);
       document.removeEventListener("click", handleSidePanelOutsideClick);
+      clearTimeout(asidePanelCloseTimeout.current);
     };
-  }, [asidePanel]);
+  }, [asidePanel, closeAsidePanel]);
 
   //   const tourContextValue = useMemo(
   //     () => ({
@@ -179,167 +216,202 @@ const App = ({ Component, pageProps }) => {
 
   useEffect(() => {
     setThemeDarkMode(JSON.parse(localStorage.getItem("theme")) || false);
+    setLanguage(JSON.parse(localStorage.getItem("locale")) || "EN");
     // http://localhost:3000/manager/login?&show_logo=false
 
     if (showLogo === undefined) {
       setShowLogo(true);
     }
-    // console.log("querry show logo in app , useEffect",query.show_logo)
   }, []);
 
-  const [isEnabled, setEnabled] = useState(false);
-  const isTourEnabledRef = useRef();
-  useEffect(() => {
-    return () => {
-      clearTimeout(isTourEnabledRef);
-    };
-  }, []);
-  const currentTourComponent = useMemo(() => {
-    // console.log("currentTour: ", currentTour);
+  //   const [isEnabled, setEnabled] = useState(tour.run);
 
-    if (currentTour && currentTour.steps && currentTour.steps.length > 0) {
-      if (!isEnabled) {
-        clearTimeout(isTourEnabledRef);
-        isTourEnabledRef.current = setTimeout(() => {
-          setEnabled(true);
-        }, 800);
-      }
+  //   const isTourEnabledRef = useRef();
+  //   useEffect(() => {
+  //     return () => {
+  //       clearTimeout(isTourEnabledRef);
+  //     };
+  //   }, []);
 
-      return (
-        <Steps
-          enabled={isEnabled}
-          initialStep={0}
-          steps={currentTour.steps}
-          onComplete={currentTour.onCompleteCallback}
-          onExit={() => {
-            console.log("on exit");
-            // currentTourData
-            // console.log(currentTour.steps)
-            // setCurrentTour({
-            //     name: "",
-            //     pageId: "",
-            //     steps: [],
-            //   });
-            setEnabled(false);
-          }}
-          onBeforeChange={currentTour.onBeforeChangeCallback}
-          onAfterChange={currentTour.onAfterChangeCallback}
-          options={{
-            showButtons: true,
-            disableInteraction: false,
-            showProgress: false,
-          }}
-        />
-      );
-    }
+  //   const currentTourComponent = useMemo(() => {
+  //     // console.log("currentTour: ", currentTour);
 
-    return null;
-  }, [currentTour, isEnabled]);
+  //     if (currentTour && currentTour.steps && currentTour.steps.length > 0) {
+  //       if (!isEnabled) {
+  //         clearTimeout(isTourEnabledRef);
+  //         isTourEnabledRef.current = setTimeout(() => {
+  //           setEnabled(true);
+  //         }, 800);
+  //       }
 
-  const startTour = useCallback((tourName) => {
-    console.log(TOURS);
-    const currentTourData = TOURS[tourName];
-    let steps = currentTourData[currentTourData.startPage];
-    console.log("steps have been set: ", steps);
-    setCurrentTour({
-      name: tourName,
-      pageId: currentTourData.startPage,
-      steps: steps,
-      onCompleteCallback: () => {
-        const lastStep = steps[steps.length - 1];
-        console.log("last step: ", lastStep);
+  //       return (
+  //         <Steps
+  //           enabled={isEnabled}
+  //           initialStep={0}
+  //           steps={currentTour.steps}
+  //           onComplete={currentTour.onCompleteCallback}
+  //           onExit={() => {
+  //             console.log("on exit");
+  //             // currentTourData
+  //             // console.log(currentTour.steps)
+  //             // setCurrentTour({
+  //             //     name: "",
+  //             //     pageId: "",
+  //             //     steps: [],
+  //             //   });
+  //             setEnabled(false);
+  //           }}
+  //           onBeforeChange={currentTour.onBeforeChangeCallback}
+  //           onAfterChange={currentTour.onAfterChangeCallback}
+  //           options={{
+  //             showButtons: true,
+  //             disableInteraction: false,
+  //             showProgress: false,
+  //           }}
+  //         />
+  //       );
+  //     }
 
-        if (lastStep.goNextPage) {
-          steps = currentTourData[lastStep.goNextPage];
-          console.log("new steps have been set: ", steps);
-          setCurrentTour((prevTour) => {
-            console.log("new steps have been set 2: ", steps);
+  //     return null;
+  //   }, [currentTour, isEnabled]);
 
-            return {
-              ...prevTour,
-              pageId: lastStep.goNextPage,
-              steps: steps,
-            };
-          });
-          router.push("/" + lastStep.goNextPage);
-        } else {
-          console.log("Resetting steps of current tour");
-          setCurrentTour({
-            name: "",
-            pageId: "",
-            steps: [],
-          });
-        }
-      },
-      onBeforeChangeCallback: (newStepIndex, newElement) => {
-        // currentTourData, steps
-        /*
-            userpagewelcome -> next -> button -> next welcomeuserpage
-           */
-        console.log(
-          "onBeforeChangeCallback::onBeforeChangeCallback::newStepIndex",
-          newStepIndex
-        );
-        console.log(
-          "onBeforeChangeCallback::onBeforeChangeCallback::newElement",
-          newElement
-        );
-        //
-        console.log("steps[newStepIndex]: ", steps[newStepIndex]);
-        if (steps[newStepIndex] && steps[newStepIndex].shouldTriggerClick) {
-          setCurrentTour((prevCurrentTour) => ({
-            ...currentTour,
-            pendingClick: true,
-            pendingClickTarget: newElement,
-          }));
-        }
-        return;
-      },
-      onAfterChangeCallback: (newStepIndex, newElement) => {
-        console.log(
-          "onAfterChangeCallback::onAfterChangeCallback::newStepIndex",
-          newStepIndex
-        );
-        console.log(
-          "onAfterChangeCallback::onAfterChangeCallback::newElement",
-          newElement
-        );
+  //   const startTour = useCallback((tourName) => {
+  //     console.log(TOURS);
+  //     const currentTourData = TOURS[tourName];
+  //     let steps = currentTourData[currentTourData.startPage];
+  //     console.log("steps have been set: ", steps);
+  //     setCurrentTour({
+  //       name: tourName,
+  //       pageId: currentTourData.startPage,
+  //       steps: steps,
+  //       onCompleteCallback: () => {
+  //         const lastStep = steps[steps.length - 1];
+  //         console.log("last step: ", lastStep);
 
-        setCurrentTour((prevCurrentTour) => {
-          console.log(
-            "onAfterChangeCallback::onAfterChangeCallback::prevCurrentTour"
-          );
-          if (prevCurrentTour.pendingClick) {
-            console.log(
-              "onAfterChangeCallback::i'm clicking on ",
-              prevCurrentTour.pendingClickTarget
-            );
-            prevCurrentTour.pendingClickTarget.click();
-          }
-          return {
-            ...prevCurrentTour,
-            pendingClick: false,
-            pendingClickTarget: null,
-          };
-        });
-      },
-    });
-  }, []);
+  //         if (lastStep.goNextPage) {
+  //           steps = currentTourData[lastStep.goNextPage];
+  //           console.log("new steps have been set: ", steps);
+  //           setCurrentTour((prevTour) => {
+  //             console.log("new steps have been set 2: ", steps);
 
-  const dictionaring = { dict: new Dict().setData(english) , language:"EN" };
+  //             return {
+  //               ...prevTour,
+  //               pageId: lastStep.goNextPage,
+  //               steps: steps,
+  //             };
+  //           });
+  //           router.push("/" + lastStep.goNextPage);
+  //         } else {
+  //           console.log("Resetting steps of current tour");
+  //           setCurrentTour({
+  //             name: "",
+  //             pageId: "",
+  //             steps: [],
+  //           });
+  //         }
+  //       },
+  //       onBeforeChangeCallback: (newStepIndex, newElement) => {
+  //         // currentTourData, steps
+  //         /*
+  //             userpagewelcome -> next -> button -> next welcomeuserpage
+  //            */
+  //         console.log(
+  //           "onBeforeChangeCallback::onBeforeChangeCallback::newStepIndex",
+  //           newStepIndex
+  //         );
+  //         console.log(
+  //           "onBeforeChangeCallback::onBeforeChangeCallback::newElement",
+  //           newElement
+  //         );
+  //         //
+  //         console.log("steps[newStepIndex]: ", steps[newStepIndex]);
+  //         if (steps[newStepIndex] && steps[newStepIndex].shouldTriggerClick) {
+  //           setCurrentTour((prevCurrentTour) => ({
+  //             ...currentTour,
+  //             pendingClick: true,
+  //             pendingClickTarget: newElement,
+  //           }));
+  //         }
+  //         return;
+  //       },
+  //       onAfterChangeCallback: (newStepIndex, newElement) => {
+  //         console.log(
+  //           "onAfterChangeCallback::onAfterChangeCallback::newStepIndex",
+  //           newStepIndex
+  //         );
+  //         console.log(
+  //           "onAfterChangeCallback::onAfterChangeCallback::newElement",
+  //           newElement
+  //         );
 
-  return (    
-      <DictionaryContext.Provider value={dictionaring}>
-        {/* <AuthContext.Provider value={authContextValue}> */}
-        <ThemeContext.Provider value={themeContextValue}>
-          <AsidePanelContext.Provider value={asidePanelContextValue}>
-            <SidebarContext.Provider value={sidebarContextValue}>
-              {/* <TourContext.Provider value={tourContextValue}> */}
-              <TourContext.Provider
-                value={{ startTour, tour: currentTourComponent }}
-              >
-                <>
-                  {/* <Steps
+  //         setCurrentTour((prevCurrentTour) => {
+  //           console.log(
+  //             "onAfterChangeCallback::onAfterChangeCallback::prevCurrentTour"
+  //           );
+  //           if (prevCurrentTour.pendingClick) {
+  //             console.log(
+  //               "onAfterChangeCallback::i'm clicking on ",
+  //               prevCurrentTour.pendingClickTarget
+  //             );
+  //             prevCurrentTour.pendingClickTarget.click();
+  //           }
+  //           return {
+  //             ...prevCurrentTour,
+  //             pendingClick: false,
+  //             pendingClickTarget: null,
+  //           };
+  //         });
+  //       },
+  //     });
+  //   }, []);
+  const { setSteps, setCurrentStep, setIsOpen } = useTour();
+  //   const dictionaring = { dict: new Dict().setData(language == "EN" ? enDict : itDict ) };
+  //   console.log(tour);
+  return (
+    <DictionaryContext.Provider value={dictionaryContextValue}>
+      {/* <AuthContext.Provider value={authContextValue}> */}
+      <ThemeContext.Provider value={themeContextValue}>
+        <AsidePanelContext.Provider value={asidePanelContextValue}>
+          <SidebarContext.Provider value={sidebarContextValue}>
+            {/* <TourContext.Provider value={tourContextValue}> */}
+            <TourContext.Provider
+              //   value={{ startTour, tour: currentTourComponent }}
+              value={{ tour: tour , startTour:setTour }}
+            >
+            <TourProvider
+              steps={[]}
+              beforeClose={() => {
+                setCurrentStep(0);
+                // startTour("stepsCreateNewAccount");
+                setIsOpen(false);
+                setTour({run:false})
+              }}
+            >
+              <>
+                {/* reactour v1
+                <TourNoSSR
+                  getCurrentStep={(curr) =>
+                    console.log(`The current step is ${curr + 1}`)
+                  }
+                  updateDelay={50}
+                  steps={[
+                    {
+                      selector: "#sidemenu-dashboard-button",
+                      content: "This is the first Step",
+                      action: ()=> router.push("/manager")
+                      ,
+                    },
+                    {
+                      selector: ".p-panel__title",
+                      content: "This is the first Step",
+                    },
+                  ]}
+                  isOpen={tour.run}
+                  onRequestClose={() => {
+                   setTour({run:false});
+                  }}
+                /> */}
+                {/* <Steps
                   enabled={true}
                   steps={[
                     {
@@ -354,11 +426,11 @@ const App = ({ Component, pageProps }) => {
                   initialStep={0}
                   onExit={() => console.log("exit")}
                 /> */}
-                  {/* <Tour
+                {/* <Tour
                 // tour={tour} startTour={tourContextValue.startTour}
                 />*/}
 
-                  {/* <JoyRideNoSSR
+                {/* <JoyRideNoSSR
                   callback={handleJoyrideCallback}
                   continuous
                   hideCloseButton
@@ -375,24 +447,25 @@ const App = ({ Component, pageProps }) => {
                   }}
                   debug
                 /> */}
-                  <Component
-                    {...pageProps}
-                    asidePanel={{
-                      ...asidePanel,
-                      ...asidePanelContextValue,
-                      ref: sidePanelRef,
-                    }}
-                    // loading={setIsloading}
-                    // isLoading={isLoading}
-                  />
-                  <ToastContainer />
-                </>
-              </TourContext.Provider>
-            </SidebarContext.Provider>
-          </AsidePanelContext.Provider>
-        </ThemeContext.Provider>
-        {/* </AuthContext.Provider> */}
-      </DictionaryContext.Provider>
+                <Component
+                  {...pageProps}
+                  asidePanel={{
+                    ...asidePanel,
+                    ...asidePanelContextValue,
+                    ref: sidePanelRef,
+                  }}
+                  // loading={setIsloading}
+                  // isLoading={isLoading}
+                />
+                <ToastContainer />
+              </>
+            </TourProvider>
+            </TourContext.Provider>
+          </SidebarContext.Provider>
+        </AsidePanelContext.Provider>
+      </ThemeContext.Provider>
+      {/* </AuthContext.Provider> */}
+    </DictionaryContext.Provider>
   );
 };
 

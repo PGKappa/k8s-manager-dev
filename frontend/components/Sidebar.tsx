@@ -19,15 +19,20 @@ import {
 import { PanelUserProfile } from "@/components/panels";
 import { useRouter } from "next/router";
 import { useAuth } from "@/hooks/auth";
+import { DictionaryContext, useTranslation } from "@pg-ui/i18n";
 
 const Sidebar = ({ showLogo }) => {
   const { user, logout } = useAuth({ middleware: "auth" }),
     { openAsidePanel } = useContext(AsidePanelContext),
     [isUserAccordionExpanded, setUserAccordionExpanded] =
       useState<boolean>(false),
+    [isLanguageAccordionExpanded, setLanguageAccordionExpanded] =
+      useState<boolean>(false),
     { isDarkMode, setDarkMode } = useContext(ThemeContext),
     { pathname } = useRouter(),
     { isCollapsed, toggle } = useContext(SidebarContext),
+    { t } = useTranslation(""),
+    { language, setLanguage } = useContext(DictionaryContext),
     // { tour, startTour, stepIndex } = useContext(TourContext),
     version = process.env.FRONTEND_VERSION;
 
@@ -53,6 +58,37 @@ const Sidebar = ({ showLogo }) => {
     //     });
     //   }, 800);
     // }
+  }
+
+  const langs = [
+    { shortCode: "EN", label: "English", icon: "manager/img/flags/en.png" },
+    { shortCode: "IT", label: "Italiano", icon: "manager/img/flags/it.png" },
+  ];
+
+  function getOptions(langs, selectedLanguage) {
+    return langs.map(({ shortCode, label, icon }, idx) => {
+      if (shortCode == selectedLanguage) return;
+      return (
+        <li key={idx} className="p-side-navigation__item">
+          <a
+            className="p-side-navigation__link"
+            onClick={() => {
+              setLanguage(shortCode);
+            }}
+          >
+            <span className="u-has-icon" style={{ color: "white" }}>
+              {/* <img
+                style={{ marginRight: "5px" }}
+                width="25"
+                height="25"
+                src={icon}
+              /> */}
+              {label}
+            </span>
+          </a>
+        </li>
+      );
+    });
   }
 
   const toggleTheme = () => {
@@ -158,7 +194,7 @@ const Sidebar = ({ showLogo }) => {
                         className="p-side-navigation__item l-fluid-breakout u-no-padding"
                         id={"sidemenu-dashboard-button"}
                       >
-                        <Link href={"/manager"} legacyBehavior>
+                        <Link href={"/"} legacyBehavior>
                           <a
                             onClick={() => {
                               onPageButtonClick("/");
@@ -176,7 +212,7 @@ const Sidebar = ({ showLogo }) => {
                         </Link>
                       </li>
                       <li className="p-side-navigation__item l-fluid-breakout u-no-padding">
-                        <Link href={"/manager/users"} legacyBehavior>
+                        <Link href={"/users"} legacyBehavior>
                           <a
                             id={"sidemenu-user-button"}
                             onClick={() => onPageButtonClick("/users")}
@@ -193,7 +229,7 @@ const Sidebar = ({ showLogo }) => {
                         </Link>
                       </li>
                       <li className="p-side-navigation__item l-fluid-breakout u-no-padding">
-                        <Link href={"/manager/tickets"} legacyBehavior>
+                        <Link href={"/tickets"} legacyBehavior>
                           <a
                             id={"sidemenu-ticketlist-button"}
                             onClick={() => onPageButtonClick("/tickets")}
@@ -210,7 +246,7 @@ const Sidebar = ({ showLogo }) => {
                         </Link>
                       </li>
                       <li className="p-side-navigation__item l-fluid-breakout u-no-padding">
-                        <Link href={"/manager/summary"} legacyBehavior>
+                        <Link href={"/summary"} legacyBehavior>
                           <a
                             id={"sidemenu-ticketsummary-button"}
                             onClick={() => onPageButtonClick("/summary")}
@@ -227,7 +263,7 @@ const Sidebar = ({ showLogo }) => {
                         </Link>
                       </li>
                       <li className="p-side-navigation__item l-fluid-breakout u-no-padding">
-                        <Link href={"/manager/viewers"} legacyBehavior>
+                        <Link href={"/viewers"} legacyBehavior>
                           <a
                             id={"sidemenu-viewers-button"}
                             onClick={() => onPageButtonClick("/viewers")}
@@ -244,6 +280,7 @@ const Sidebar = ({ showLogo }) => {
                         </Link>
                       </li>
                     </ul>
+
                     <ul className="p-side-navigation__list is-fading-when-collapsed">
                       <li className="p-side-navigation__item">
                         <p className="u-align-text--center">{version}</p>
@@ -252,116 +289,7 @@ const Sidebar = ({ showLogo }) => {
                   </nav>
                 </div>
 
-                {/* <div className="p-panel__header">
-                  <aside className="p-accordion">
-                    <ul className="p-accordion__list">
-                      <li className="p-accordion__group ">
-                        <div
-                          role="heading"
-                          className="p-accordion__heading "
-                          onClick={() =>
-                            setUserAccordionExpanded(!isUserAccordionExpanded)
-                          }
-                        >
-                          <button
-                            type="button"
-                            className="p-accordion__tab"
-                            id="owner"
-                            aria-controls="owner-section"
-                            aria-expanded={isUserAccordionExpanded}
-                            onClick={() =>
-                              setUserAccordionExpanded(!isUserAccordionExpanded)
-                            }
-                          >
-                            <i className="p-icon--user is-light"></i>
-                            <span>{user?.username}</span>
-                          </button>
-                        </div>
-                        <section
-                          className="p-accordion__panel"
-                          id="owner-section"
-                          aria-hidden={!isUserAccordionExpanded}
-                          aria-labelledby="owner"
-                        >
-                          <span
-                            onClick={() => {
-                              openUserProfile(user);
-                            }}
-                          >
-                            Profile
-                          </span>
-                        </section>
-
-                        <section
-                          className="p-accordion__panel"
-                          id="owner-section"
-                          aria-hidden={!isUserAccordionExpanded}
-                          aria-labelledby="owner"
-                        >
-                          <Switch
-                            label="Dark Mode"
-                            onClick={() => toggleTheme(isDarkMode)}
-                            aria-checked={isDarkMode}
-                            // value={!isDarkMode}
-                            defaultChecked={isDarkMode}
-                          />
-                        </section>
-
-                        <section
-                          className="p-accordion__panel"
-                          id="owner-section"
-                          aria-hidden={!isUserAccordionExpanded}
-                          aria-labelledby="owner"
-                        >
-                          <Button
-                            style={
-                              isDarkMode
-                                ? {
-                                    color: "white",
-                                  }
-                                : {
-                                    color: "black",
-                                  }
-                            }
-                            className={isDarkMode ? "is-dark" : ""}
-                            onClick={() => {
-                              //   logoutRequest({ username, token });
-                              logout();
-                            }}
-                            // value={isDarkMode}
-                            hasIcon={true}
-                          >
-                            <i className="p-icon--power-off"></i>
-                            <span>Logout</span>
-                          </Button>
-                        </section>
-                      </li>
-                    </ul>
-                  </aside>
-                </div> */}
-                {/* <nav className="p-side-navigation--icons is-dark">
-                  <ul className="p-side-navigation__list is-fading-when-collapsed">
-                    <li
-                      className="p-side-navigation__item"
-                      id={"sidemenu-faq-button"}
-                    >
-                      <Link href={"/manager/faq"} legacyBehavior>
-                        <a
-                          onClick={() => onPageButtonClick("/faq")}
-                          className="p-side-navigation__link"
-                          {...(pathname == "/faq" && {
-                            "aria-current": "page",
-                          })}
-                        >
-                          <FaQuestionCircle className="is-light p-side-navigation__icon" />
-                          <span className="p-side-navigation__label">FAQ</span>
-                        </a>
-                      </Link>
-                    </li>
-                  </ul>
-                </nav> */}
-
-                <div className="p-side-navigation--accordion " id="drawer">
+                <div className="p-side-navigation--accordion " id="user">
                   <nav
                     // className="p-side-navigation__drawer"
                     aria-label=""
@@ -399,7 +327,7 @@ const Sidebar = ({ showLogo }) => {
                                 color: "white",
                               }}
                             >
-                              Profile
+                              {t("sidebar.profile")}
                             </span>
                             {/* </a> */}
                           </li>
@@ -421,7 +349,7 @@ const Sidebar = ({ showLogo }) => {
                                   color: "white",
                                 }}
                               >
-                                Dark mode
+                                {t("dark_mode")}
                               </span>
                             </label>
                           </li>
@@ -452,8 +380,64 @@ const Sidebar = ({ showLogo }) => {
                           </li>
                         </ul>
                       </li>
+                      {/* locale start */}
+                      <li className="p-side-navigation__item">
+                        <button
+                          className="p-side-navigation__accordion-button"
+                          aria-expanded={isLanguageAccordionExpanded}
+                          onClick={() =>
+                            setLanguageAccordionExpanded(
+                              !isLanguageAccordionExpanded
+                            )
+                          }
+                        >
+                          <span className="u-has-icon">
+                            {/* <i className="p-icon--user is-light"></i> */}
+                            <img
+                              width="25"
+                              height="25"
+                              style={{ marginRight: "5px" }}
+                              src={`/manager/img/flags/${language.toLowerCase()}.png`}
+                            />
+                            {language == "EN" ? "English" : "Italian"}
+                          </span>
+                        </button>
+                        <ul
+                          className="p-side-navigation__list"
+                          aria-expanded={isLanguageAccordionExpanded}
+                        >
+                          {getOptions(langs, language)}
+                        </ul>
+                      </li>
+                      {/* locale end */}
                     </ul>
                   </nav>
+                  {user?.level === "root" && (
+                    <nav
+                      className="p-side-navigation--icons is-dark"
+                      aria-label="Main"
+                    >
+                      <ul className="p-side-navigation__list">
+                        <li className="p-side-navigation__item l-fluid-breakout u-no-padding">
+                          <Link href={"/faq"} legacyBehavior>
+                            <a
+                              id={"sidemenu-faq-button"}
+                              onClick={() => onPageButtonClick("/faq")}
+                              className="p-side-navigation__link"
+                              {...(pathname == "/faq" && {
+                                "aria-current": "page",
+                              })}
+                            >
+                              <FaQuestionCircle className="is-light p-side-navigation__icon" />
+                              <span className="p-side-navigation__label">
+                                ROOT FAQ
+                              </span>
+                            </a>
+                          </Link>
+                        </li>
+                      </ul>
+                    </nav>
+                  )}
                 </div>
               </div>
             </div>

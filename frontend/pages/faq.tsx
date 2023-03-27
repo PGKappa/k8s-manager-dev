@@ -7,9 +7,14 @@ import { useTranslation } from "@pg-ui/i18n";
 import AppLayout from "@/components/Layouts/AppLayout";
 import Head from "next/head";
 // import { useRouter } from "next/router";
+import { useTour } from "@reactour/tour";
+
+import stepsCreateNewAccount from "@/tours/createNewAccount";
+import { useRouter } from "next/router";
 
 const PageFAQ = () => {
-  //   const { startTour, tour } = useContext(TourContext);
+  const { setSteps, setCurrentStep, setIsOpen } = useTour();
+  const { startTour, tour } = useContext(TourContext);
   const { t } = useTranslation(""),
     { isDarkMode } = useContext(ThemeContext);
   //   const router = useRouter(),
@@ -25,6 +30,7 @@ const PageFAQ = () => {
   //     },
   //     [startTour]
   //   );
+  const router = useRouter();
 
   const contentData = [
     {
@@ -37,7 +43,22 @@ const PageFAQ = () => {
           <div>
             <button
             //   onClick={() => {
-            //     startTour("stepsDownloadWeeklyReport");
+            //     setIsOpen(true);
+            //     setSteps([
+            //         {
+            //           selector: "#sidemenu-users-button",
+            //           content: "This is the first Step .1 download weekpy report ",
+            //           actionAfter: () => {
+            //             router.push("/manager");
+            //           },
+            //           stepInteraction: false,
+            //         },
+            //         {
+            //           selector: ".p-panel__title",
+            //           content: "This is the second Step",
+            //         },
+            //       ]);
+            //     // startTour({run:true , steps:stepsCreateNewAccount });
             //   }}
             >
               Tour
@@ -56,10 +77,89 @@ const PageFAQ = () => {
           </div>
           <div>
             <button
-            //    onClick={() => {
-            //     startTour("stepsCreateNewAccount");
-
-            //   }}
+              onClick={() => {
+                setCurrentStep(0);
+                //     startTour("stepsCreateNewAccount");
+                setIsOpen(true);
+                startTour({ run: true });
+                setSteps([
+                  {
+                    selector: "#sidemenu-user-button",
+                    content: (
+                      <>
+                        <p>This is the button that goes to user page. </p>
+                      </>
+                    ),
+                    // stepInteraction: false,
+                  },
+                  {
+                    selector: ".l-application",
+                    position: "center",
+                    content: (
+                      <>
+                        <p>Welcome to the user page</p>
+                        <p>
+                          {" "}
+                          After page loads please click, right arrow to continue
+                        </p>
+                      </>
+                    ),
+                    action: () => {
+                      console.warn("ACTIONAFTER");
+                      // setTimeout(() => {
+                      router.push("/manager/users");
+                      // }, 500);
+                    },
+                  },
+                  {
+                    selector: "#user-create-button",
+                    content: (
+                      <>
+                        <p>Button that opens user create panel from aside </p>
+                        <p>Click the (+) button,then click the next arrow</p>
+                      </>
+                    ),
+                    action: () => {
+                      console.warn("create-buttton");
+                    },
+                  },
+                  {
+                    selector: "#user-create-form",
+                    content: (
+                      <>
+                        <p>This is the user create panel form</p>
+                        <p>Click arrow button to continue</p>
+                      </>
+                    ),
+                    action: () => {
+                      console.warn("create form");
+                    },
+                    // stepInteraction: false,
+                  },
+                  {
+                    selector: "#sidemenu-faq-button",
+                    content: (
+                      <>
+                        <p>Go back to faq page</p>
+                        {/* <p>Click {"(->)"}arrow button to continue</p> */}
+                      </>
+                    ),
+                  },
+                  {
+                    selector: ".l-application",
+                    position: "center",
+                    content: (
+                      <>
+                        <p>
+                          You have finished tour : 2.
+                          {t("guide.tours.createNewAccount.question")}
+                        </p>
+                        <p>Click {"(X)"}arrow button to close the tour</p>
+                      </>
+                    ),
+                  },
+                ]);
+              }}
             >
               Tour
             </button>

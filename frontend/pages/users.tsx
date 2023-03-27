@@ -193,7 +193,7 @@ const PageUsers: FC = ({ asidePanel }: any) => {
                         <th data-heading={t("user.table.created_at")}>
                           {formatTime(item.created_at, item.intl)}
                         </th>
-                        .
+
                         <th data-heading={t("user.table.updated_at")}>
                           {formatTime(item.updated_at, item.intl)}
                         </th>

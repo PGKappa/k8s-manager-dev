@@ -351,7 +351,7 @@ const PageTicketList: FC = ({ asidePanel }: any) => {
     mode === "trasnsactionUsers"
       ? openTicketDetails
       : null;
-console.warn(isClickHandlerAllowed);
+// console.warn(isClickHandlerAllowed);
   return (
     <AppLayout asidePanel={asidePanel}>
       <Head>

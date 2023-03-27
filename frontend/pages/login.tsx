@@ -25,7 +25,7 @@ const Login = () => {
   const { setShowLogo } = useContext(ThemeContext);
   const { login } = useAuth({
     middleware: "guest",
-    redirectIfAuthenticated: "/manager",
+    redirectIfAuthenticated: "/login",
   });
 
   const [username, setUsername] = useState<string>("");

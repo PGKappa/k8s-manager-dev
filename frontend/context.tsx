@@ -18,7 +18,7 @@ export const ThemeContext = createContext<IThemeContext>({});
 interface IAsidePanelContext {
   isOpen: boolean;
   openAsidePanel: (args: {
-    // isOpen: boolean;
+    isOpen: boolean;
     title: string;
     // showHeader?:boolean;
     content: React.ReactNode;

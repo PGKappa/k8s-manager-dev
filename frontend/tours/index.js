@@ -1,5 +1,5 @@
-import stepsDownloadWeeklyReport from './downloadWeeklyReport.json'
-import stepsCreateNewAccount from './createNewAccount.json'
+import stepsDownloadWeeklyReport from './downloadWeeklyReport'
+import stepsCreateNewAccount from './createNewAccount'
 const TOURS = {
     stepsDownloadWeeklyReport,
     stepsCreateNewAccount

@@ -22,7 +22,7 @@ import AppLayout from "@/components/Layouts/AppLayout";
 import Head from "next/head";
 import { useAuth } from "@/hooks/auth";
 import { toast } from "react-toastify";
-import { Area, Line } from "@/components/Chart";
+import { Line } from "@/components/Chart";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import { useTranslation } from "@pg-ui/i18n";
@@ -31,11 +31,12 @@ const DatePicker = dynamic(() => import("react-datepicker"), { ssr: false });
 
 const dashboard: FC = ({ asidePanel }:any) => {
   const { user } = useAuth({ middleware: "auth" });
-    if(!user) return<></>;
+//   console.warn(user,"")
+//     if(!user) return<></>;
 
   const { isDarkMode } = useContext(ThemeContext),
    todaysDate = getTodayDate(),
-   [isWaitingForResponse, setIsWaitingForResponse] = useState(true),
+   [isWaitingForResponse, setIsWaitingForResponse] = useState<boolean>(true),
    [reportChartData, setReportChartData] = useState({
     chartData: [],
     fromDate: getTodayDate(7),
@@ -47,6 +48,7 @@ const dashboard: FC = ({ asidePanel }:any) => {
   //     fromDate: getTodayDate(7),
   //     toDate: getTodayDate(),
   //   });
+
   const currentWeekinPHPFormat = getCurrentWeekinPHPFormat(),
     [weeklyReportDate, setWeeklyReportDate] = useState(currentWeekinPHPFormat),
     [weeklyReportChartDates, setWeeklyReportChartDates] = useState({
@@ -70,7 +72,6 @@ const dashboard: FC = ({ asidePanel }:any) => {
     profit: "0",
     shopsCount: "0",
   });
-
   useEffect(() => {
     // if (isMounted.current) return;
     if (isWaitingForResponse) {
@@ -79,7 +80,6 @@ const dashboard: FC = ({ asidePanel }:any) => {
       };
 
       requestReportChartData(requestParams);
-
       //   requestActiveShopsData(requestParams);
 
       requestTodaysProfitData({
@@ -93,6 +93,7 @@ const dashboard: FC = ({ asidePanel }:any) => {
   }, [isWaitingForResponse]);
 
   const requestReportChartData = (args) => {
+    console.warn("reportChartData args" , args)
     requestTicketList({
       params: {
         ...requestParams,
@@ -156,7 +157,7 @@ const dashboard: FC = ({ asidePanel }:any) => {
 
   const requestTodaysProfitData = (args) => {
     // Active shops
-    console.warn(args);
+    // console.warn(args);
     requestTicketSummary({
       params: {
         fromDate: args.fromDate,
@@ -166,7 +167,7 @@ const dashboard: FC = ({ asidePanel }:any) => {
       },
       onSuccess: (res: RequestTicketSummaryResponse) => {
         const responseData = res;
-        console.warn(responseData);
+        // console.warn(responseData);
         if (res.reports.length > 0) {
           setTodayReportData({
             turnover: responseData.reports[0].in,
@@ -329,7 +330,7 @@ const dashboard: FC = ({ asidePanel }:any) => {
   return (
     <AppLayout asidePanel={asidePanel}>
       <Head>
-        <title>{t("dashboard_page.title")}</title>
+        <title>{t("dashboard.title")}</title>
       </Head>
       <div
         className={"p-panel " + (isDarkMode ? "is-dark" : "")}
@@ -337,7 +338,7 @@ const dashboard: FC = ({ asidePanel }:any) => {
       >
         <div className="p-panel__header u-align--center">
           <h4 className="p-panel__title targetTest">
-            {t("dashboard_page.header")}
+            {t("dashboard.header")}
           </h4>
           <div className="p-panel__controls"></div>
         </div>
@@ -347,17 +348,17 @@ const dashboard: FC = ({ asidePanel }:any) => {
             <div className="l-fluid-breakout">
               <div className="l-fluid-breakout__main is-full-width u-equal-height">
                 <div className={"p-card" + (isDarkMode ? "is-dark" : "")}>
-                  <h4 className="u-sv-1">{t("dashboard_page.today_card.title")}</h4>
+                  <h4 className="u-sv-1">{t("dashboard.today_card.title")}</h4>
                   <MainTable
                     headers={[
                       {
-                        content: t("dashboard_page.today_card.turnover"),
+                        content: t("dashboard.today_card.turnover"),
                       },
                       {
-                        content: t("dashboard_page.today_card.profit"),
+                        content: t("dashboard.today_card.profit"),
                       },
                       {
-                        content: t("dashboard_page.today_card.shopcount"),
+                        content: t("dashboard.today_card.shopcount"),
                       },
                     ]}
                     rows={[
@@ -387,8 +388,8 @@ const dashboard: FC = ({ asidePanel }:any) => {
                       <button
                         className={isDarkMode ? "p-chip is-dark" : "p-chip "}
                       >
-                        <span className="p-chip__value">{t("dashboard_page.today_card.dogs6")} </span>
-                        <span className="p-chip__value">{t("dashboard_page.today_card.horses6")}</span>
+                        <span className="p-chip__value">{t("dashboard.today_card.dogs6")} </span>
+                        <span className="p-chip__value">{t("dashboard.today_card.horses6")}</span>
                       </button>
                     </Link>
                   </footer>
@@ -401,7 +402,7 @@ const dashboard: FC = ({ asidePanel }:any) => {
                       : " weekly-report-container")
                   }
                 >
-                  <h4 className="u-sv-1">{t("dashboard_page.weekly_report.title")}</h4>
+                  <h4 className="u-sv-1">{t("dashboard.weekly_report.title")}</h4>
                   <input
                     className={isDarkMode ? "is-dark " : ""}
                     type="week"
@@ -426,7 +427,7 @@ const dashboard: FC = ({ asidePanel }:any) => {
                     }}
                   >
                     <i className="p-icon--begin-downloading"></i>
-                    <span>{t("dashboard_page.weekly_report.button")}</span>
+                    <span>{t("dashboard.weekly_report.button")}</span>
                   </Button>
                   <footer></footer>
                 </div>
@@ -436,9 +437,9 @@ const dashboard: FC = ({ asidePanel }:any) => {
 
           <Strip bordered element="section" includeCol={false} rowClassName="">
             <Col size={2}>
-              <h3>{t("dashboard_page.chart.title")}</h3>
+              <h3>{t("dashboard.chart.title")}</h3>
               <Form inline>
-                <label>{t("dashboard_page.chart.start_date")}</label>
+                <label>{t("dashboard.chart.start_date")}</label>
                 <div>
                   <DatePicker
                     dateFormat={"dd/MM/yyyy"}
@@ -458,7 +459,7 @@ const dashboard: FC = ({ asidePanel }:any) => {
                   />
                 </div>
                 <div>
-                  <label>{t("dashboard_page.chart.end_date")}</label>
+                  <label>{t("dashboard.chart.end_date")}</label>
                   <DatePicker
                     dateFormat={"dd/MM/yyyy"}
                     selected={Date.parse(reportChartData.toDate)}
@@ -486,7 +487,7 @@ const dashboard: FC = ({ asidePanel }:any) => {
                   }}
                 >
                   <i className="p-icon--change-version"></i>
-                  <span>{t("dashboard_page.chart.button")}</span>
+                  <span>{t("dashboard.chart.button")}</span>
                 </Button>
               </Form>
             </Col>

@@ -1,4 +1,4 @@
-export const inglese = {
+export const itDict = {
        login: {
         title: "Accedi",
         username: "username",
@@ -208,7 +208,7 @@ export const inglese = {
         pulsante: {
           salta: "Salta",
           successivo: "Avanti",
-          startTour: "Tour",   
+          startTour: "Tour",
           smt:"indietro_indietro",
           chiudi: "Chiudi",
           ultimo: "Ultimo",
