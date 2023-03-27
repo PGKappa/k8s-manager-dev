@@ -33,7 +33,7 @@ class ManagerServiceProvider extends ServiceProvider
         // $this->loadTranslationsFrom(__DIR__.'/lang', 'manager');
         // $this->publishes([__DIR__.'/assets' => public_path('manager-assets'),'assets']);
         $this->publishes([__DIR__ . '/../public' => public_path('manager')]);
-        $this->publishes([__DIR__ . '/../games' => public_path('manager')]);
+        // $this->publishes([__DIR__ . '/../games' => public_path('manager')]);
         $this->publishes([__DIR__ . '/../assets' => public_path('assets')]);
         $this->publishes([__DIR__ . '/database/seeders/ManagerUsersSeeder.php' => database_path('seeders/ManagerUsersSeeder.php')]);
         include_once __DIR__ . '/Models/ManagerUser.php';
