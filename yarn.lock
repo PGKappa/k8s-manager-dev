@@ -2596,6 +2596,53 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@reactour/mask@npm:*":
+  version: 1.0.5
+  resolution: "@reactour/mask@npm:1.0.5"
+  dependencies:
+    "@reactour/utils": "*"
+  peerDependencies:
+    react: 16.x || 17.x || 18.x
+  checksum: 6bd19b570430dfb5950d8c22047aba0673b9ee35a29973f82561f0bd71189e9e79fe09992c03bd480daeb2b9b44e6f467cb63ef7bd7527358a069a65739f8a35
+  languageName: node
+  linkType: hard
+
+"@reactour/popover@npm:*":
+  version: 1.0.5
+  resolution: "@reactour/popover@npm:1.0.5"
+  dependencies:
+    "@reactour/utils": "*"
+  peerDependencies:
+    react: 16.x || 17.x || 18.x
+  checksum: 882e1e709c7fe6e5d95a8500ae2a497d3d364f89f9e93d6d0cc6d53ecca8bda661c29ff63b1a58127d624cad927831d506b435df7e533da4949fff026e26e405
+  languageName: node
+  linkType: hard
+
+"@reactour/tour@npm:^3.3.0":
+  version: 3.3.0
+  resolution: "@reactour/tour@npm:3.3.0"
+  dependencies:
+    "@reactour/mask": "*"
+    "@reactour/popover": "*"
+    "@reactour/utils": "*"
+  peerDependencies:
+    react: 16.x || 17.x || 18.x
+  checksum: 3e292075431a406236cfa0d469ed9f991c839b1f96460f865da9e1b4ae190cb8535c76a662923a1b3b2573572eb165c71a73e82361725e29d0f5a7b77dc92c09
+  languageName: node
+  linkType: hard
+
+"@reactour/utils@npm:*":
+  version: 0.4.7
+  resolution: "@reactour/utils@npm:0.4.7"
+  dependencies:
+    "@rooks/use-mutation-observer": ^4.11.2
+    resize-observer-polyfill: ^1.5.1
+  peerDependencies:
+    react: 16.x || 17.x || 18.x
+  checksum: fec485bdb7ef0604fdd241d583be19a2b009fbaef4fff68cf1e8e3717a09f317a4025c6ca7d0afa72b383e5732d77553122881ff569fee297a3814b0bdec5f03
+  languageName: node
+  linkType: hard
+
 "@rollup/plugin-babel@npm:^5.2.0":
   version: 5.3.1
   resolution: "@rollup/plugin-babel@npm:5.3.1"
@@ -2651,6 +2698,15 @@ __metadata:
   peerDependencies:
     rollup: ^1.20.0||^2.0.0
   checksum: 8be16e27863c219edbb25a4e6ec2fe0e1e451d9e917b6a43cf2ae5bc025a6b8faaa40f82a6e53b66d0de37b58ff472c6c3d57a83037ae635041f8df959d6d9aa
+  languageName: node
+  linkType: hard
+
+"@rooks/use-mutation-observer@npm:^4.11.2":
+  version: 4.11.2
+  resolution: "@rooks/use-mutation-observer@npm:4.11.2"
+  peerDependencies:
+    react: ">=16.8.0"
+  checksum: 9f60f58f9c2dc49f65384edd98b838178f1e1a9981d13ca61f3a62b922518a57f2eefe98332b55c4dc03c6d15548702a1437cf90dbca003315d28ad60929da73
   languageName: node
   linkType: hard
 
@@ -10510,6 +10566,7 @@ __metadata:
     "@pg-ui/i18n": ^1.0.18
     "@pg-ui/pgv": ^1.0.119
     "@pg-ui/theme-stanleybet": ^1.0.0
+    "@reactour/tour": ^3.3.0
     "@tailwindcss/forms": ^0.5.2
     "@testing-library/jest-dom": ^5.14.1
     "@testing-library/react": ^13.0.0
@@ -13682,6 +13739,13 @@ react-charts@beta:
   version: 1.0.0
   resolution: "requires-port@npm:1.0.0"
   checksum: eee0e303adffb69be55d1a214e415cf42b7441ae858c76dfc5353148644f6fd6e698926fc4643f510d5c126d12a705e7c8ed7e38061113bdf37547ab356797ff
+  languageName: node
+  linkType: hard
+
+"resize-observer-polyfill@npm:^1.5.1":
+  version: 1.5.1
+  resolution: "resize-observer-polyfill@npm:1.5.1"
+  checksum: 57e7f79489867b00ba43c9c051524a5c8f162a61d5547e99333549afc23e15c44fd43f2f318ea0261ea98c0eb3158cca261e6f48d66e1ed1cd1f340a43977094
   languageName: node
   linkType: hard
 
