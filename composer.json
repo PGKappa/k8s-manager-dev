@@ -1,5 +1,5 @@
 {
-  "version": "3.0.24",
+  "version": "3.0.25",
   "name": "pgvirtual/manager",
   "description": "Manager package of PG Virtual Platform",
   "authors": [
