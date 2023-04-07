@@ -61,8 +61,8 @@ const Sidebar = ({ showLogo }) => {
   }
 
   const langs = [
-    { shortCode: "EN", label: "English", icon: "manager/img/flags/en.png" },
-    { shortCode: "IT", label: "Italiano", icon: "manager/img/flags/it.png" },
+    { shortCode: "EN", label: "English", icon: "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f2/Flag_of_Great_Britain_%281707%E2%80%931800%29.svg/200px-Flag_of_Great_Britain_%281707%E2%80%931800%29.svg.png" },
+    { shortCode: "IT", label: "Italiano", icon: "https://upload.wikimedia.org/wikipedia/commons/c/c5/Icona_Bandiera_Italiana.png" },
   ];
 
   function getOptions(langs, selectedLanguage) {
@@ -211,7 +211,7 @@ const Sidebar = ({ showLogo }) => {
                           </a>
                         </Link>
                       </li>
-                      <li className="p-side-navigation__item l-fluid-breakout u-no-padding">
+                      {/* <li  className="p-side-navigation__item l-fluid-breakout u-no-padding">
                         <Link href={"/users"} legacyBehavior>
                           <a
                             id={"sidemenu-user-button"}
@@ -227,7 +227,7 @@ const Sidebar = ({ showLogo }) => {
                             </span>
                           </a>
                         </Link>
-                      </li>
+                      </li> **/}
                       <li className="p-side-navigation__item l-fluid-breakout u-no-padding">
                         <Link href={"/tickets"} legacyBehavior>
                           <a
@@ -262,7 +262,7 @@ const Sidebar = ({ showLogo }) => {
                           </a>
                         </Link>
                       </li>
-                      <li className="p-side-navigation__item l-fluid-breakout u-no-padding">
+                      {/*   <li className="p-side-navigation__item l-fluid-breakout u-no-padding">
                         <Link href={"/viewers"} legacyBehavior>
                           <a
                             id={"sidemenu-viewers-button"}
@@ -278,7 +278,7 @@ const Sidebar = ({ showLogo }) => {
                             </span>
                           </a>
                         </Link>
-                      </li>
+                      </li> */}
                     </ul>
 
                     <ul className="p-side-navigation__list is-fading-when-collapsed">
