@@ -393,12 +393,12 @@ const Sidebar = ({ showLogo }) => {
                         >
                           <span className="u-has-icon">
                             {/* <i className="p-icon--user is-light"></i> */}
-                            <img
+                            {/*    <img
                               width="25"
                               height="25"
                               style={{ marginRight: "5px" }}
                               src={`/manager/img/flags/${language.toLowerCase()}.png`}
-                            />
+                            /> */}
                             {language == "EN" ? "English" : "Italian"}
                           </span>
                         </button>
