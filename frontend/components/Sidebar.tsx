@@ -382,32 +382,9 @@ const Sidebar = ({ showLogo }) => {
                       </li>
                       {/* locale start */}
                       <li className="p-side-navigation__item">
-                        <button
-                          className="p-side-navigation__accordion-button"
-                          aria-expanded={isLanguageAccordionExpanded}
-                          onClick={() =>
-                            setLanguageAccordionExpanded(
-                              !isLanguageAccordionExpanded
-                            )
-                          }
-                        >
-                          <span className="u-has-icon">
-                            {/* <i className="p-icon--user is-light"></i> */}
-                            {/*    <img
-                              width="25"
-                              height="25"
-                              style={{ marginRight: "5px" }}
-                              src={`/manager/img/flags/${language.toLowerCase()}.png`}
-                            /> */}
-                            {language == "EN" ? "English" : "Italian"}
+                        <span className="u-has-icon">
+                           English
                           </span>
-                        </button>
-                        <ul
-                          className="p-side-navigation__list"
-                          aria-expanded={isLanguageAccordionExpanded}
-                        >
-                          {getOptions(langs, language)}
-                        </ul>
                       </li>
                       {/* locale end */}
                     </ul>
