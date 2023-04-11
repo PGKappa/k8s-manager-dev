@@ -285,8 +285,8 @@ class ReportController extends Controller
             'reports' => $ticketList['reports'] ?? $ticketList,
             'params' => [
                 'type' => $request->type ?? 'transaction',
-                'fromDate' => $dates['fromDate']->toDateString(),
-                'toDate' => $dates['toDate']->toDateString(),
+                'fromDate' => $dates['fromDate'],
+                'toDate' => $dates['toDate'],
                 'groupBy' => $request->groupBy ?? null,
                 'shops' => $request->shops ?? null,
                 'users' => $request->users ?? null,
