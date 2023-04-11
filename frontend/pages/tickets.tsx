@@ -421,18 +421,7 @@ const PageTicketList: FC = ({ asidePanel }: any) => {
                   </div>
                 </div>
               </div>
-              <div className="p-form__group row p-form--inline u-no-padding u-align--right">
-                <Button
-                  small={true}
-                  dense
-                  hasIcon={true}
-                  className={isDarkMode ? "is-dark" : ""}
-                  onClick={openFiltersPanel}
-                >
-                  <i className="p-icon--filter"></i>
-                  <span>{t("ticket.button.filter")}</span>
-                </Button>
-              </div>
+            
             </div>
           </div>
         </div>
