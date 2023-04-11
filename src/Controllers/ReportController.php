@@ -977,11 +977,11 @@ class ReportController extends Controller
                 'dateFormat' => 'yy-mm-dd',
             ];
         }
-        $diffInDays = $dates['fromDate']->diffInDays($dates['toDate']);
+     //   $diffInDays = $dates['fromDate']->diffInDays($dates['toDate']);
 
-        if (!($diffInDays <= 31)) {
-            throw new Exception('Period cannot be bigger than a month');
-        }
+       // if (!($diffInDays <= 31)) {
+       //     throw new Exception('Period cannot be bigger than a month');
+       // }
 
         return $dates;
     }
