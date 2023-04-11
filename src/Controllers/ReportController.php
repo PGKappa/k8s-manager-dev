@@ -367,10 +367,10 @@ class ReportController extends Controller
         }
 
         if (isset($options['fromDate']) && isset($options['toDate'])) {
-            $isAValidDateRange = $options['toDate']->gt($options['fromDate']); // check if start date is less than end date
-            if ($isAValidDateRange) {
+         //   $isAValidDateRange = $options['toDate']->gt($options['fromDate']); // check if start date is less than end date
+         //   if ($isAValidDateRange) {
                 $tickets = $tickets->whereBetween('time', [$options['fromDate'], $options['toDate']]);
-            }
+         //    }
         }
 
         if (!$shouldGroupBy) {
