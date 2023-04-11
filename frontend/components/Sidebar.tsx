@@ -382,7 +382,7 @@ const Sidebar = ({ showLogo }) => {
                       </li>
                       {/* locale start */}
                       <li className="p-side-navigation__item">
-                        <span className="u-has-icon" style="margin: 20px;">
+                        <span className="u-has-icon" style={{ margin: 20 }}>
                            English
                           </span>
                       </li>
