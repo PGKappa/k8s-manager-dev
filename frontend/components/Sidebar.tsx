@@ -211,7 +211,7 @@ const Sidebar = ({ showLogo }) => {
                           </a>
                         </Link>
                       </li>
-                      <li className="p-side-navigation__item l-fluid-breakout u-no-padding">
+                      {/* <li className="p-side-navigation__item l-fluid-breakout u-no-padding">
                         <Link href={"/users"} legacyBehavior>
                           <a
                             id={"sidemenu-user-button"}
@@ -227,7 +227,7 @@ const Sidebar = ({ showLogo }) => {
                             </span>
                           </a>
                         </Link>
-                      </li>
+                      </li>*/}
                       <li className="p-side-navigation__item l-fluid-breakout u-no-padding">
                         <Link href={"/tickets"} legacyBehavior>
                           <a
@@ -262,7 +262,7 @@ const Sidebar = ({ showLogo }) => {
                           </a>
                         </Link>
                       </li>
-                      <li className="p-side-navigation__item l-fluid-breakout u-no-padding">
+                      {/* <li className="p-side-navigation__item l-fluid-breakout u-no-padding">
                         <Link href={"/viewers"} legacyBehavior>
                           <a
                             id={"sidemenu-viewers-button"}
@@ -278,7 +278,7 @@ const Sidebar = ({ showLogo }) => {
                             </span>
                           </a>
                         </Link>
-                      </li>
+                      </li> */}
                     </ul>
 
                     <ul className="p-side-navigation__list is-fading-when-collapsed">
@@ -381,8 +381,9 @@ const Sidebar = ({ showLogo }) => {
                         </ul>
                       </li>
                       {/* locale start */}
-                      <li className="p-side-navigation__item">
-                        <button
+                       <li className="p-side-navigation__item">
+                        <span>English</span>
+                        {/* <button
                           className="p-side-navigation__accordion-button"
                           aria-expanded={isLanguageAccordionExpanded}
                           onClick={() =>
@@ -392,7 +393,7 @@ const Sidebar = ({ showLogo }) => {
                           }
                         >
                           <span className="u-has-icon">
-                            {/* <i className="p-icon--user is-light"></i> */}
+                            <i className="p-icon--user is-light"></i> 
                             <img
                               width="25"
                               height="25"
@@ -407,7 +408,7 @@ const Sidebar = ({ showLogo }) => {
                           aria-expanded={isLanguageAccordionExpanded}
                         >
                           {getOptions(langs, language)}
-                        </ul>
+                        </ul> */}
                       </li>
                       {/* locale end */}
                     </ul>

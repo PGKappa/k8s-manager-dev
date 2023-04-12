@@ -138,7 +138,8 @@ class ReportController extends Controller
         $user = $request->user('manager');
         if ($user) {
             try {
-                $userLanguage = $user->language->name;
+                // $userLanguage = $user->language->name;
+                $userLanguage = "en-GB";
 
                 $ticketList = ReportController::getReport([
                     'type' => $request->type ?? 'transaction',
@@ -293,6 +294,7 @@ class ReportController extends Controller
             ],
         ]);
     }
+
     public static function getReport($options)
     {
         $tickets = Ticket::where('status', '>', Ticket::STATUS_CREATED);
@@ -539,7 +541,8 @@ class ReportController extends Controller
                 $item->status = $ticketStatusTexts[$item->status];
                 $item->intl = [
                     'timezone' => $item->timezone,
-                    'locale' => Language::where('id', User::findOrFail($item->user_id)->language_id)->first()->name,
+                    // 'locale' => Language::where('id', User::findOrFail($item->user_id)->language_id)->first()->name,
+                    "locale" => "en-GB"
                 ];
                 // $item->locale = ; //* note after work
 
@@ -833,7 +836,7 @@ class ReportController extends Controller
             $ticket->type = self::$UserLevels[User::findOrFail($ticket->type)->level];
             $ticket->intl = [
                 // "timezone" => $ticket->timezone,
-                'locale' => $userLanguage,
+                'locale' => "en_GB",
             ];
 
             return $ticket;

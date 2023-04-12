@@ -314,6 +314,18 @@ const PageTicketSummary: FC = ({ asidePanel }: any) => {
     };
   }, [closeAsidePanel]);
 
+  const formatDateDatepicker = (date) => {
+    var d = new Date(date),
+      month = "" + (d.getMonth() + 1),
+      day = "" + d.getDate(),
+      year = d.getFullYear();
+
+    if (month.length < 2) month = "0" + month;
+    if (day.length < 2) day = "0" + day;
+
+    return `${month}/${day}/${year}`;
+  };
+
   const onFromDateChange = useCallback(
     (fromDate: Date) => {
       let newMaxToDate = new Date(fromDate);
@@ -324,7 +336,7 @@ const PageTicketSummary: FC = ({ asidePanel }: any) => {
       }
       setRequestParams({
         ...requestParams,
-        fromDate: fromDate.toISOString().split("T")[0],
+        fromDate: formatDateDatepicker(fromDate),
         toDate: newToDate,
       });
     },
@@ -342,7 +354,7 @@ const PageTicketSummary: FC = ({ asidePanel }: any) => {
       setRequestParams({
         ...requestParams,
         fromDate: newFromDate,
-        toDate: toDate.toISOString().split("T")[0],
+        toDate: formatDateDatepicker(toDate),
       });
     },
     [requestParams]
@@ -426,7 +438,7 @@ const PageTicketSummary: FC = ({ asidePanel }: any) => {
                   </div>
                 </div>
               </div>
-              <div className="p-form__group row p-form--inline u-no-padding u-align--right">
+              {/* <div className="p-form__group row p-form--inline u-no-padding u-align--right">
                 <Button
                   small={true}
                   dense
@@ -437,7 +449,7 @@ const PageTicketSummary: FC = ({ asidePanel }: any) => {
                   <i className="p-icon--filter"></i>
                   <span>Advanced Filters</span>
                 </Button>
-              </div>
+              </div> */}
             </div>
           </div>
         </div>
