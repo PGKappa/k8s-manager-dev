@@ -432,7 +432,7 @@ class ReportController extends Controller
                         if ($ticket->user_id) {
                             $ticket->intl = [
                                 // "timezone" => $ticket->timezone,
-                                'locale' => $options['userLanguage'],
+                                'locale' => 'en-US',
                             ];
                         }
 
@@ -447,7 +447,7 @@ class ReportController extends Controller
                     'concatPercentage' => FormatUtils::money($ticketList->sum('sumProfit')),
                     'intl' => [
                         // "timezone" => $ticket->timezone,
-                        'locale' => $options['userLanguage'],
+                        'locale' => 'en-US',
                     ],
                 ];
             } else {
@@ -468,7 +468,7 @@ class ReportController extends Controller
                         'profit' => FormatUtils::money($amountProfit) . " ($amountProfitPercentage %)",
                         'intl' => [
                             // "timezone" => $ticket->timezone,
-                            'locale' => $options['userLanguage'],
+                            'locale' => 'en-US',
                         ],
                     ];
                     $activeUsersQuery = Ticket::whereBetween('time', [$options['fromDate'], $options['toDate']])->where('status', '>=', Ticket::STATUS_ACTIVE);
