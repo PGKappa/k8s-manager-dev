@@ -211,6 +211,7 @@ const Sidebar = ({ showLogo }) => {
                           </a>
                         </Link>
                       </li>
+
                       {/* <li  className="p-side-navigation__item l-fluid-breakout u-no-padding">
                         <Link href={"/users"} legacyBehavior>
                           <a
@@ -227,7 +228,8 @@ const Sidebar = ({ showLogo }) => {
                             </span>
                           </a>
                         </Link>
-                      </li> **/}
+                      </li> */}
+
                       <li className="p-side-navigation__item l-fluid-breakout u-no-padding">
                         <Link href={"/tickets"} legacyBehavior>
                           <a
@@ -262,6 +264,7 @@ const Sidebar = ({ showLogo }) => {
                           </a>
                         </Link>
                       </li>
+
                       {/*   <li className="p-side-navigation__item l-fluid-breakout u-no-padding">
                         <Link href={"/viewers"} legacyBehavior>
                           <a
@@ -381,10 +384,12 @@ const Sidebar = ({ showLogo }) => {
                         </ul>
                       </li>
                       {/* locale start */}
+
                       <li className="p-side-navigation__item">
                         <span className="u-has-icon" style={{ margin: 20 }}>
                            English
                           </span>
+
                       </li>
                       {/* locale end */}
                     </ul>

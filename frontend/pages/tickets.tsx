@@ -50,7 +50,8 @@ const CELL_RENDERER__TRANSACTION_USERS = {
   id: (item) => item.id,
   user_id: (item) => item.user_id,
   type: (item) => item.type,
-  time: (item) => formatTime(item.time, item.intl),
+  time: (item) => formatTime(item.time, {locale: "en-US"}),
+  // time: (item) => formatTime(item.time, item.intl),
   // currency_id: (item) => item.currency_id,
   amount_in: (item) => formatStake(item.amount_in, item.intl),
   amount_out: (item) => formatStake(item.amount_out, item.intl),
@@ -61,7 +62,8 @@ const CELL_RENDERER__TRANSACTION_SHOPS = {
   id: (item) => item.id,
   user_id: (item) => item.user_id,
   type: (item) => item.type,
-  time: (item) => formatTime(item.time, item.intl),
+  time: (item) => formatTime(item.time, {locale: "en-US"}),
+  // time: (item) => formatTime(item.time, item.intl),
   // currency_id: (item) => item.currency_id,
   amount_in: (item) => formatStake(item.amount_in, item.intl),
   amount_out: (item) => formatStake(item.amount_out, item.intl),
@@ -309,6 +311,18 @@ const PageTicketList: FC = ({ asidePanel }: any) => {
     };
   }, [closeAsidePanel]);
 
+  const formatDateDatepicker = (date) => {
+    var d = new Date(date),
+      month = "" + (d.getMonth() + 1),
+      day = "" + d.getDate(),
+      year = d.getFullYear();
+
+    if (month.length < 2) month = "0" + month;
+    if (day.length < 2) day = "0" + day;
+
+    return `${month}/${day}/${year}`;
+  };
+
   const onFromDateChange = useCallback(
     (fromDate: Date) => {
       let newMaxToDate = new Date(fromDate);
@@ -319,7 +333,7 @@ const PageTicketList: FC = ({ asidePanel }: any) => {
       }
       setRequestParams({
         ...requestParams,
-        fromDate: fromDate.toISOString().split("T")[0],
+        fromDate: formatDateDatepicker(fromDate),
         toDate: newToDate,
       });
     },
@@ -337,7 +351,7 @@ const PageTicketList: FC = ({ asidePanel }: any) => {
       setRequestParams({
         ...requestParams,
         fromDate: newFromDate,
-        toDate: toDate.toISOString().split("T")[0],
+        toDate: formatDateDatepicker(toDate),
       });
     },
     [requestParams]
@@ -351,7 +365,7 @@ const PageTicketList: FC = ({ asidePanel }: any) => {
     mode === "trasnsactionUsers"
       ? openTicketDetails
       : null;
-// console.warn(isClickHandlerAllowed);
+
   return (
     <AppLayout asidePanel={asidePanel}>
       <Head>
@@ -378,7 +392,8 @@ const PageTicketList: FC = ({ asidePanel }: any) => {
                         }
                         dateFormat={"dd/MM/yyyy"}
                         selected={Date.parse(
-                          formatTime(requestParams.fromDate, user?.locale)
+                            //   formatTime(requestParams.fromDate, user?.locale)
+                            formatTime(requestParams.fromDate, {locale: "en_GB"})
                         )}
                         //   minDate={periodDates.minDate}
                         maxDate={Date.parse(todaysDate)}
@@ -397,7 +412,9 @@ const PageTicketList: FC = ({ asidePanel }: any) => {
                         }
                         dateFormat={"dd/MM/yyyy"}
                         selected={Date.parse(
-                          formatTime(requestParams.toDate, user?.locale)
+                          // formatTime(requestParams.toDate, user?.locale)
+                          formatTime(requestParams.toDate, {locale: "en_GB"})
+
                         )}
                         // minDate={periodDates.minDate}
                         maxDate={Date.parse(todaysDate)}
@@ -421,7 +438,6 @@ const PageTicketList: FC = ({ asidePanel }: any) => {
                   </div>
                 </div>
               </div>
-            
             </div>
           </div>
         </div>

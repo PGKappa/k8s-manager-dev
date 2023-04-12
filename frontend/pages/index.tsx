@@ -26,13 +26,12 @@ import { Line } from "@/components/Chart";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import { useTranslation } from "@pg-ui/i18n";
+import { formatTime } from "@pg-ui/i18n";
 
 const DatePicker = dynamic(() => import("react-datepicker"), { ssr: false });
 
-const dashboard: FC = ({ asidePanel }:any) => {
+const dashboard: FC = ({ asidePanel }: any) => {
   const { user } = useAuth({ middleware: "auth" });
-//   console.warn(user,"")
-//     if(!user) return<></>;
 
   const { isDarkMode } = useContext(ThemeContext),
    todaysDate = getTodayDate(),
@@ -93,7 +92,6 @@ const dashboard: FC = ({ asidePanel }:any) => {
   }, [isWaitingForResponse]);
 
   const requestReportChartData = (args) => {
-    console.warn("reportChartData args" , args)
     requestTicketList({
       params: {
         ...requestParams,
@@ -188,6 +186,18 @@ const dashboard: FC = ({ asidePanel }:any) => {
     });
   };
 
+  const formatDateDatepicker = (date) => {
+    var d = new Date(date),
+      month = "" + (d.getMonth() + 1),
+      day = "" + d.getDate(),
+      year = d.getFullYear();
+
+    if (month.length < 2) month = "0" + month;
+    if (day.length < 2) day = "0" + day;
+
+    return `${day}/${month}/${year}`;
+  };
+
   function createReportChartData(tickets) {
     let dataProfit = [
       {
@@ -248,21 +258,21 @@ const dashboard: FC = ({ asidePanel }:any) => {
       dataProfit = [
         ...dataProfit,
         {
-          date: item.date,
+          date: formatDateDatepicker(item.date),
           params: Number(item.sumProfit),
         },
       ];
       dataSumIn = [
         ...dataSumIn,
         {
-          date: item.date,
+          date: formatDateDatepicker(item.date),
           params: Number(item.sumIn),
         },
       ];
       dataSumOut = [
         ...dataSumOut,
         {
-          date: item.date,
+          date: formatDateDatepicker(item.date),
           params: Number(item.sumOut),
         },
       ];

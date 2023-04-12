@@ -30,7 +30,7 @@ const Pagination = ({
 
   const { t } = useTranslation("");
 
-  const startItems = chunk <= 1 ? 1 : chunk * limit - 10;
+  const startItems = chunk <= 1 ? 1 : chunk * limit - limit;
   const middleItems = last_chunk == chunk ? total : displayedItems * chunk;
 
   return (
@@ -38,6 +38,7 @@ const Pagination = ({
       <div className="col-4">
         <Form inline>
           <Select
+            defaultValue={limit}
             className={isDarkMode ? "is-dark" : ""}
             label={t("pagination.perPage")}
             options={[

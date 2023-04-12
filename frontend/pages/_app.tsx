@@ -179,8 +179,7 @@ const App = ({ Component, pageProps }) => {
     [asidePanel, isSidebarCollapsed , tour] //tour
   );
 
-  useEffect(() => {
-    console.warn("alalalalalala",asidePanel.isOpen);
+  useEffect(() => {   
     if (asidePanel.isOpen) {
       clearTimeout(asidePanelCloseTimeout.current);
       asidePanelCloseTimeout.current = setTimeout(() => {
