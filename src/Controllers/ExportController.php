@@ -33,8 +33,8 @@ class ExportController extends Controller
         $reports = ReportController::getReport([
             'type' => 'summary',
             'groupBy' => 'shop',
-            'fromDate' => $fromDate,
-            'toDate' => $toDate,
+            'fromDate' => Carbon::parse($fromDate),
+            'toDate' => Carbon::parse($toDate),
             'user' => $request->user('manager'),
         ]);
         // return response()->json($reports);
