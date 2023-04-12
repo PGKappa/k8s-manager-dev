@@ -286,8 +286,8 @@ class ReportController extends Controller
             'reports' => $ticketList['reports'] ?? $ticketList,
             'params' => [
                 'type' => $request->type ?? 'transaction',
-                'fromDate' => $dates['fromDate']->toDateString(),
-                'toDate' => $dates['toDate']->toDateString(),
+                'fromDate' => $dates['fromDate'],
+                'toDate' => $dates['toDate'],
                 'groupBy' => $request->groupBy ?? null,
                 'shops' => $request->shops ?? null,
                 'users' => $request->users ?? null,
@@ -369,10 +369,10 @@ class ReportController extends Controller
         }
 
         if (isset($options['fromDate']) && isset($options['toDate'])) {
-            $isAValidDateRange = $options['toDate']->gt($options['fromDate']); // check if start date is less than end date
-            if ($isAValidDateRange) {
+         //   $isAValidDateRange = $options['toDate']->gt($options['fromDate']); // check if start date is less than end date
+         //   if ($isAValidDateRange) {
                 $tickets = $tickets->whereBetween('time', [$options['fromDate'], $options['toDate']]);
-            }
+         //    }
         }
 
         if (!$shouldGroupBy) {
@@ -434,7 +434,7 @@ class ReportController extends Controller
                         if ($ticket->user_id) {
                             $ticket->intl = [
                                 // "timezone" => $ticket->timezone,
-                                'locale' => $options['userLanguage'],
+                                'locale' => 'en-US',
                             ];
                         }
 
@@ -449,7 +449,7 @@ class ReportController extends Controller
                     'concatPercentage' => FormatUtils::money($ticketList->sum('sumProfit')),
                     'intl' => [
                         // "timezone" => $ticket->timezone,
-                        'locale' => $options['userLanguage'],
+                        'locale' => 'en-US',
                     ],
                 ];
             } else {
@@ -470,7 +470,7 @@ class ReportController extends Controller
                         'profit' => FormatUtils::money($amountProfit) . " ($amountProfitPercentage %)",
                         'intl' => [
                             // "timezone" => $ticket->timezone,
-                            'locale' => $options['userLanguage'],
+                            'locale' => 'en-US',
                         ],
                     ];
                     $activeUsersQuery = Ticket::whereBetween('time', [$options['fromDate'], $options['toDate']])->where('status', '>=', Ticket::STATUS_ACTIVE);
@@ -980,11 +980,11 @@ class ReportController extends Controller
                 'dateFormat' => 'yy-mm-dd',
             ];
         }
-        $diffInDays = $dates['fromDate']->diffInDays($dates['toDate']);
+     //   $diffInDays = $dates['fromDate']->diffInDays($dates['toDate']);
 
-        if (!($diffInDays <= 31)) {
-            throw new Exception('Period cannot be bigger than a month');
-        }
+       // if (!($diffInDays <= 31)) {
+       //     throw new Exception('Period cannot be bigger than a month');
+       // }
 
         return $dates;
     }

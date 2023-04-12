@@ -18,13 +18,13 @@ export const enDict = {
     profile: "Profile",
   },
   pagination: {
-    perPage: "Per page",
+    perPage: "For page",
   },
   dashboard: {
     title: "Manager - Dashboard",
     header: "Dashboard",
     today_card: {
-      title: "Today's report",
+      title: "Today's Report",
       turnover: "Turnover",
       profit: "Profit",
       shopcount: "Active",
@@ -36,7 +36,7 @@ export const enDict = {
       button: "Download",
     },
     chart: {
-      title: " Report chart",
+      title: " Report Chart",
       start_date: "Start date",
       end_date: "End date",
       button: "Update",
@@ -48,7 +48,7 @@ export const enDict = {
     table: {
       username: "Username",
       level: "Level",
-      created_at: "Created at",
+      created_at: "Created At",
       updated_at: "Updated At",
     },
     panel: {
@@ -169,8 +169,8 @@ export const enDict = {
     table: {
       id: "ID",
       macaddress: "Macaddress",
-      user: "user",
-      monitor: "monitor",
+      user: "User",
+      monitor: "Monitor",
       channel: "Channel",
       language: "Language",
       url: {
