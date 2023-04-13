@@ -33,13 +33,13 @@ const dashboard: FC = ({ asidePanel }: any) => {
   const { user } = useAuth({ middleware: "auth" });
 
   const { isDarkMode } = useContext(ThemeContext),
-   todaysDate = getTodayDate(),
-   [isWaitingForResponse, setIsWaitingForResponse] = useState<boolean>(true),
-   [reportChartData, setReportChartData] = useState({
-    chartData: [],
-    fromDate: getTodayDate(7),
-    toDate: todaysDate,
-  });
+    todaysDate = getTodayDate(),
+    [isWaitingForResponse, setIsWaitingForResponse] = useState<boolean>(true),
+    [reportChartData, setReportChartData] = useState({
+      chartData: [],
+      fromDate: getTodayDate(7),
+      toDate: todaysDate,
+    });
 
   //   const [activeShopsData, setActiveShopsData] = useState({
   //     chartData: [],
@@ -70,8 +70,187 @@ const dashboard: FC = ({ asidePanel }: any) => {
     profit: "0",
     shopsCount: 0,
   });
+  const formatDateDatepicker = useCallback((date: string | Date) => {
+    let d: Date;
+    if (typeof date == "string") {
+      d = new Date(date);
+    } else {
+      d = date;
+    }
+    // var d = new Date(date),
+    var month = "" + (d.getMonth() + 1),
+      day = "" + d.getDate(),
+      year = d.getFullYear();
+
+    if (month.length < 2) month = "0" + month;
+    if (day.length < 2) day = "0" + day;
+
+    return `${day}/${month}/${year}`;
+  }, []);
+
+  const createReportChartData = useCallback(
+    (tickets: SummaryDateResponse) => {
+      if (!formatDateDatepicker) return;
+      let dataProfit = [];
+      let dataSumIn = [];
+      let dataSumOut = [];
+
+      var date1 = new Date(tickets.params.fromDate);
+      var date2 = new Date(tickets.params.toDate);
+
+      var difference = date2.getTime() - date1.getTime() + 1;
+      var numOfDays = Math.ceil(difference / (1000 * 3600 * 24));
+      let datesInDateRange = Array.from({ length: numOfDays }, () => new Date())
+        .map((date, idx) => {
+          date.setDate(date.getDate() - idx);
+          console.warn(date);
+          // return formatDateDatepicker(date)
+          return date;
+        })
+        .map((date) => {
+          return {
+            date: date,
+            formattedDate: formatDateDatepicker(date), /// here
+            active_shops: 0,
+            gross_in: 0,
+            sumIn: "0",
+            sumOut: "0",
+            amountUnpaid: "0",
+            sumProfit: "0",
+            sumPercentage: "0",
+            concatPercentage: "0 (0%)",
+          };
+        });
+
+      const reportsDatas = new Map<string, SummaryDateResponseReport>();
+
+      tickets.reports.forEach((report: SummaryDateResponseReport) => {
+        console.warn("dateNotFOrmates",report.date); // printed
+        let dateFormated = formatDateDatepicker(report.date); // getMonth is not a function , report.date = HOW WHEN ITS A STRING
+        console.warn("DateFormated",dateFormated); // not printed
+        reportsDatas.set(dateFormated, {
+          ...report,
+          formattedDate: dateFormated
+        });
+      });
+
+      // datesInDateRange.forEach((report) => {
+      //   console.warn(report.date, reportsDatas);
+      //   const exists = reportsDatas.has(report.date);
+      //   if (!exists) {
+      //     reportsDatas.set(report.date, report);
+      //   }
+      // });
+
+      datesInDateRange = datesInDateRange.map((report: SummaryDateResponseReport) => {
+        const exists = reportsDatas.has(report.formattedDate);
+        if (exists) {
+          return reportsDatas.get(report.formattedDate);
+        }
+        return report;
+      });
+
+      console.warn("datesInDateRange ",datesInDateRange)
+      // reportsDatas.forEach((item) => {
+      //   dataProfit.push({
+      //     date: item.date,
+      //     params: Number(item.sumProfit),
+      //   });
+      //   dataSumIn.push({
+      //     date: item.date,
+      //     params: Number(item.sumIn),
+      //   });
+      //   dataSumOut.push({
+      //     date: item.date,
+      //     params: Number(item.sumOut),
+      //   });
+      // });
+
+      datesInDateRange.forEach((item) => {
+        dataProfit.push({
+          date: item.formattedDate,
+          notFormattedDate: item.date,
+          params: Number(item.sumProfit),
+        });
+        dataSumIn.push({
+          date: item.formattedDate,
+          notFormattedDate: item.date,
+          params: Number(item.sumIn),
+        });
+        dataSumOut.push({
+          date: item.formattedDate,
+          notFormattedDate: item.date,
+          params: Number(item.sumOut),
+        });
+      });
+
+      console.warn("il DATAPROFITO",dataProfit);
+      const data = [
+        {
+          label: "Profit",
+          // data: dataProfit
+          data: quicksort(dataProfit, (x) => new Date(x.notFormattedDate).getTime())
+        },
+        {
+          label: "Summary In",
+          // data: dataSumIn
+          data: quicksort(dataSumIn, (x) => new Date(x.notFormattedDate).getTime()),
+        },
+        {
+          label: "Summary Out",
+          // data: dataSumOut
+          data: quicksort(dataSumOut, (x) => new Date(x.notFormattedDate).getTime()),
+        },
+      ];
+
+
+
+      setReportChartData({
+        fromDate: tickets.params.fromDate,
+        toDate: tickets.params.toDate,
+        chartData: data,
+      });
+    },
+    [formatDateDatepicker]
+  );
+
+  const requestReportChartData = useCallback(
+    (args) => {
+      if (!createReportChartData) return;
+      requestTicketList({
+        params: {
+          ...requestParams,
+          fromDate: args.fromDate,
+          toDate: args.toDate,
+        },
+        onSuccess: (res: SummaryDateResponse) => {
+          if (res.reports.length > 0) {
+            createReportChartData(res);
+          }
+          if (!isWaitingForResponse) {
+            toast("Report chart updated!", {
+              hideProgressBar: true,
+              autoClose: 2000,
+              type: "success",
+            });
+          }
+        },
+        onError: (e) => {
+          setIsWaitingForResponse(false);
+
+          toast("Failed to update chart", {
+            hideProgressBar: true,
+            autoClose: 2000,
+            type: "error",
+          });
+        },
+      });
+    },
+    [isWaitingForResponse, createReportChartData]
+  );
 
   useEffect(() => {
+    if (!requestReportChartData) return;
     // if (isMounted.current) return;
     if (isWaitingForResponse) {
       const argsActiveShopsData = {
@@ -89,38 +268,8 @@ const dashboard: FC = ({ asidePanel }: any) => {
       setIsWaitingForResponse(false);
     }
     // isMounted.current = true;
-  }, [isWaitingForResponse]);
+  }, [isWaitingForResponse, requestReportChartData]);
 
-  const requestReportChartData = (args) => {
-    requestTicketList({
-      params: {
-        ...requestParams,
-        fromDate: args.fromDate,
-        toDate: args.toDate,
-      },
-      onSuccess: (res: RequestTicketListResponse) => {
-        if (res.reports.length > 0) {
-          createReportChartData(res);
-        }
-        if (!isWaitingForResponse) {
-          toast("Report chart updated!", {
-            hideProgressBar: true,
-            autoClose: 2000,
-            type: "success",
-          });
-        }
-      },
-      onError: (e) => {
-        setIsWaitingForResponse(false);
-
-        toast("Failed to update chart", {
-          hideProgressBar: true,
-          autoClose: 2000,
-          type: "error",
-        });
-      },
-    });
-  };
   //   const requestActiveShopsData = (args) => {
   //     requestTicketList({
   //       params: {
@@ -153,7 +302,7 @@ const dashboard: FC = ({ asidePanel }: any) => {
   //     });
   //   };
 
-  const requestTodaysProfitData = (args) => {
+  const requestTodaysProfitData = (args: {fromDate: string, toDate: string, groupBy: TicketSummaryGroupBy}) => {
     // Active shops
     // console.warn(args);
     requestTicketSummary({
@@ -185,119 +334,6 @@ const dashboard: FC = ({ asidePanel }: any) => {
       },
     });
   };
-
-  const formatDateDatepicker = useCallback((date: string) => {
-    var d = new Date(date),
-      month = "" + (d.getMonth() + 1),
-      day = "" + d.getDate(),
-      year = d.getFullYear();
-
-    if (month.length < 2) month = "0" + month;
-    if (day.length < 2) day = "0" + day;
-
-    return `${day}/${month}/${year}`;
-  }, []);
-
-  function createReportChartData(tickets) {
-    let dataProfit = [
-      {
-        date: null,
-        params: Number(0),
-      },
-    ];
-    let dataSumIn = [
-      {
-        date: null,
-        params: Number(0),
-      },
-    ];
-    let dataSumOut = [
-      {
-        date: null,
-        params: Number(0),
-      },
-    ];
-
-    var date1 = new Date(tickets.params.fromDate);
-    var date2 = new Date(tickets.params.toDate);
-
-    var difference = date2.getTime() - date1.getTime() + 1;
-    var numOfDays = Math.ceil(difference / (1000 * 3600 * 24));
-    const datesInDateRange = Array.from({ length: numOfDays }, () => new Date())
-      .map((date, idx) => {
-        date.setDate(date.getDate() - idx);
-        return date;
-      })
-      .map((x) => (
-       console.log(x),{
-        date: formatDateDatepicker(x.toString()),
-        active_shops: 0,
-        gross_in: 0,
-        sumIn: "0",
-        sumOut: "0",
-        amountUnpaid: "0",
-        sumProfit: "0",
-        sumPercentage: "0",
-        concatPercentage: "0 (0%)",
-      }));
-
-    const reportsDatas = new Map();
-
-    tickets.reports.forEach((report) => reportsDatas.set(formatDateDatepicker(report.date), report));
-
-    datesInDateRange.forEach((report) => {
-      console.warn(report.date ,reportsDatas)
-      const exists = reportsDatas.has(report.date);
-      if (!exists) {
-        reportsDatas.set(report.date, report);
-      }
-    });
-
-    reportsDatas.forEach((item, idx) => {
-      dataProfit = [
-        ...dataProfit,
-        {
-          date: formatDateDatepicker(item.date),
-          params: Number(item.sumProfit),
-        },
-      ];
-      dataSumIn = [
-        ...dataSumIn,
-        {
-          date: formatDateDatepicker(item.date),
-          params: Number(item.sumIn),
-        },
-      ];
-      dataSumOut = [
-        ...dataSumOut,
-        {
-          date: formatDateDatepicker(item.date),
-          params: Number(item.sumOut),
-        },
-      ];
-    });
-
-    const data = [
-      {
-        label: "Profit",
-        data: quicksort(dataProfit, (x) => x.date),
-      },
-      {
-        label: "Summary In",
-        data: quicksort(dataSumIn, (x) => x.date),
-      },
-      {
-        label: "Summary Out",
-        data: quicksort(dataSumOut, (x) => x.date),
-      },
-    ];
-
-    setReportChartData({
-      fromDate: tickets.params.fromDate,
-      toDate: tickets.params.toDate,
-      chartData: data,
-    });
-  }
 
   //   function createActiveShopsData(tickets) {
   //     let dataActiveShops = [];
@@ -335,7 +371,7 @@ const dashboard: FC = ({ asidePanel }: any) => {
   }
 
   if (isWaitingForResponse) return <Loader />;
-
+  console.warn(reportChartData);
   return (
     <AppLayout asidePanel={asidePanel}>
       <Head>
@@ -346,9 +382,7 @@ const dashboard: FC = ({ asidePanel }: any) => {
         id="dashboard"
       >
         <div className="p-panel__header u-align--center">
-          <h4 className="p-panel__title targetTest">
-            {t("dashboard.header")}
-          </h4>
+          <h4 className="p-panel__title targetTest">{t("dashboard.header")}</h4>
           <div className="p-panel__controls"></div>
         </div>
         <div className="p-panel__content ">
@@ -389,11 +423,23 @@ const dashboard: FC = ({ asidePanel }: any) => {
                   />
                   <footer style={{ display: "flex", justifyContent: "end" }}>
                     <Link legacyBehavior href={"/tickets"}>
+                      {/* <Chip
+                        lead="Games"
+                        value="Dogs6, Horses6"
+                        className={isDarkMode ? "is-dark" : ""}
+                      /> */}
                       <button
                         className={isDarkMode ? "p-chip is-dark" : "p-chip "}
                       >
-                        <span className="p-chip__value">{t("dashboard.today_card.dogs6")} </span>
-                        <span className="p-chip__value">{t("dashboard.today_card.horses6")}</span>
+                        <span className="p-chip__value">
+                          {t("dashboard.today_card.dogs6")}
+                        </span>
+                        <span
+                          className="p-chip__value"
+                          style={{ marginLeft: "2px" }}
+                        >
+                          {t("dashboard.today_card.horses6")}
+                        </span>
                       </button>
                     </Link>
                   </footer>
@@ -421,21 +467,30 @@ const dashboard: FC = ({ asidePanel }: any) => {
                     onChange={(e) => {
                       setWeeklyReportDate(e.target.value);
                     }}
+                    style={{ marginBottom: "1.5em" }}
                   />
 
-                  <footer style={{ display: "flex", justifyContent: "end" }}>
-                    <Button
-                      className={isDarkMode ? "is-dark" : ""}
-                      hasIcon={true}
+                  <footer
+                    style={{
+                      display: "flex",
+                      justifyContent: "end",
+                      marginTop: "39.5px",
+                    }}
+                  >
+                    <button
+                      className={isDarkMode ? "p-chip is-dark" : " p-chip "}
+                      //   hasIcon={true}
                       id={"weeklyDownload"}
                       onClick={(e) => {
                         e.preventDefault();
                         exportToCSv(weeklyReportDate);
                       }}
                     >
-                      <i className="p-icon--begin-downloading"></i>
+                      <span className="p-chip__value" style={{ marginRight: "2px" }}>
+                        <i className="p-icon--begin-downloading"></i>{" "}
+                      </span>
                       <span>{t("dashboard.weekly_report.button")}</span>
-                    </Button>
+                    </button>
                   </footer>
                 </div>
               </div>
@@ -492,17 +547,24 @@ const dashboard: FC = ({ asidePanel }: any) => {
                     width: "100%",
                   }}
                 >
-                  <Button
-                    className={isDarkMode ? "is-dark" : ""}
-                    hasIcon={true}
+                  <button
+                    className={isDarkMode ? "p-chip is-dark" : "p-chip "}
+                    // hasIcon={true}
                     onClick={(e) => {
                       e.preventDefault();
                       requestReportChartData(weeklyReportChartDates);
                     }}
                   >
-                    <i className="p-icon--change-version"></i>
-                    <span>{t("dashboard.chart.button")}</span>
-                  </Button>
+                    <span
+                      className="p-chip__value"
+                      style={{ marginRight: "2px" }}
+                    >
+                      <i className="p-icon--change-version"></i>
+                    </span>
+                    <span className="p-chip__value">
+                      <span>{t("dashboard.chart.button")}</span>
+                    </span>
+                  </button>
                 </div>
               </Form>
             </Col>
