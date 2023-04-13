@@ -28,8 +28,8 @@ export const enDict = {
       turnover: "Turnover",
       profit: "Profit",
       shopcount: "Active",
-      dogs6: "Dogs6,",
-      horses6: "Horses6",
+      dogs6: "Dogs 6,",
+      horses6: "Horses 6",
     },
     weekly_report: {
       title: "Download Weekly Report",

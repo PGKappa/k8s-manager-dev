@@ -89,7 +89,7 @@ const Login = () => {
                   value={username}
                   className="block mt-1 w-full "
                   onChange={(event) => setUsername(event.target.value)}
-                  required
+                  // required
                   autoFocus
                 />
                 {/* <InputError messages={errors.username} className="mt-2" /> */}

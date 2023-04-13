@@ -41,7 +41,7 @@ class ExportController extends Controller
             "mode" => "transaction"
         ]);
 
-        $columns = ['User', 'TicketId', 'In', "Out", 'Profit'];
+        $columns = ['User', 'TicketId', 'In', "Out"];
         // dd($reports);
         $callback = function () use ($reports, $columns) {
             $file = fopen('php://output', 'w');
