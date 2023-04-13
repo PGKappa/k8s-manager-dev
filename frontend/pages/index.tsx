@@ -284,7 +284,7 @@ const dashboard: FC = ({ asidePanel }: any) => {
         data: quicksort(dataProfit, (x) => x.date),
       },
       {
-        label: "Summary in",
+        label: "Summary In",
         data: quicksort(dataSumIn, (x) => x.date),
       },
       {
