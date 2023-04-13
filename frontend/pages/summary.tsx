@@ -162,14 +162,14 @@ const PageTicketSummary: FC = ({ asidePanel }: any) => {
 
             setPagination(pagination);
 
-            toast("Tickets updated for shop: " + args.shops, {
+            toast(t("Tickets updated for shop: ")+ args.shops, {
               hideProgressBar: true,
               autoClose: 2000,
               type: "success",
             });
           },
           onError: (e) => {
-            toast(e.message ? e.message : "Failed To Update tickets", {
+            toast(e.message ? e.message : t("errors.tickets"), {
               hideProgressBar: true,
               autoClose: 2000,
               type: "error",
@@ -200,7 +200,7 @@ const PageTicketSummary: FC = ({ asidePanel }: any) => {
           },
           onError: (e) => {
             setIsWaitingForResponse(false);
-            toast(e.message ? e.message : "Failed To Update tickets", {
+            toast(e.message ? e.message : t("error.tickets"), {
               hideProgressBar: true,
               autoClose: 2000,
               type: "error",
@@ -254,7 +254,7 @@ const PageTicketSummary: FC = ({ asidePanel }: any) => {
   function openTicketDetails({ itemId }: { itemId: string }) {
     openAsidePanel({
       isOpen: true,
-      title: "Ticket Details: " + itemId,
+      title: t("ticket.panel.details") + itemId,
       content: <PanelTicketDetails ticketId={itemId} />,
     });
   }
@@ -262,7 +262,7 @@ const PageTicketSummary: FC = ({ asidePanel }: any) => {
   function openFiltersPanel() {
     openAsidePanel({
       isOpen: true,
-      title: "Filters",
+      title: t("ticket.panel.filters"),
       content: (
         <PanelTicketFilters
           updatePage={updatePage}
@@ -298,7 +298,7 @@ const PageTicketSummary: FC = ({ asidePanel }: any) => {
         setIsError(true);
         setIsWaitingForResponse(false);
         console.warn("ON ERROR", e);
-        const message = e.message ? e.message : "Failed get data";
+        const message = e.message ? e.message : t("error.data");
         toast(message, {
           hideProgressBar: true,
           autoClose: 2000,
@@ -328,16 +328,16 @@ const PageTicketSummary: FC = ({ asidePanel }: any) => {
 
   const onFromDateChange = useCallback(
     (fromDate: Date) => {
-      let newMaxToDate = new Date(fromDate);
-      newMaxToDate.setMonth(newMaxToDate.getMonth() + 1);
-      let newToDate = requestParams.toDate;
-      if (requestParams.toDate > newMaxToDate) {
-        newToDate = newMaxToDate;
-      }
+      // let newMaxToDate = new Date(fromDate);
+      // newMaxToDate.setMonth(newMaxToDate.getMonth() + 1);
+      // let newToDate = requestParams.toDate;
+      // if (requestParams.toDate > newMaxToDate) {
+      //   newToDate = newMaxToDate;
+      // }
       setRequestParams({
         ...requestParams,
         fromDate: formatDateDatepicker(fromDate),
-        toDate: newToDate,
+        // toDate: newToDate,
       });
     },
     [requestParams]
@@ -345,15 +345,15 @@ const PageTicketSummary: FC = ({ asidePanel }: any) => {
 
   const onToDateChange = useCallback(
     (toDate: Date) => {
-      let newMinFromDate = new Date(toDate);
-      newMinFromDate.setMonth(newMinFromDate.getMonth() - 1);
-      let newFromDate = requestParams.fromDate;
-      if (requestParams.fromDate < newMinFromDate) {
-        newFromDate = newMinFromDate;
-      }
+      // let newMinFromDate = new Date(toDate);
+      // newMinFromDate.setMonth(newMinFromDate.getMonth() - 1);
+      // let newFromDate = requestParams.fromDate;
+      // if (requestParams.fromDate < newMinFromDate) {
+      //   newFromDate = newMinFromDate;
+      // }
       setRequestParams({
         ...requestParams,
-        fromDate: newFromDate,
+        // fromDate: newFromDate,
         toDate: formatDateDatepicker(toDate),
       });
     },
@@ -395,7 +395,8 @@ const PageTicketSummary: FC = ({ asidePanel }: any) => {
                         }
                         dateFormat={"dd/MM/yyyy"}
                         selected={Date.parse(
-                          formatTime(requestParams.fromDate, user?.locale)
+                          // formatTime(requestParams.fromDate, user?.locale)
+                          formatTime(requestParams.fromDate , {locale : "en-GB"})
                         )}
                         //   minDate={periodDates.minDate}
                         maxDate={Date.parse(todaysDate)}
@@ -414,7 +415,8 @@ const PageTicketSummary: FC = ({ asidePanel }: any) => {
                         }
                         dateFormat={"dd/MM/yyyy"}
                         selected={Date.parse(
-                          formatTime(requestParams.toDate, user?.locale)
+                          // formatTime(requestParams.toDate, "user?.locale")
+                          formatTime(requestParams.toDate , "en-GB")
                         )}
                         // minDate={periodDates.minDate}
                         maxDate={Date.parse(todaysDate)}
@@ -438,7 +440,7 @@ const PageTicketSummary: FC = ({ asidePanel }: any) => {
                   </div>
                 </div>
               </div>
-             </div>
+            </div>
           </div>
         </div>
 

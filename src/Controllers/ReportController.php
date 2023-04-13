@@ -21,7 +21,6 @@ use PGVirtual\Core\Models\Language;
 use PGVirtual\Core\Models\Channel;
 use Exception;
 
-
 class ReportController extends Controller
 {
     use FormatUtils;
@@ -286,8 +285,8 @@ class ReportController extends Controller
             'reports' => $ticketList['reports'] ?? $ticketList,
             'params' => [
                 'type' => $request->type ?? 'transaction',
-                'fromDate' => $dates['fromDate'],
-                'toDate' => $dates['toDate'],
+                'fromDate' => $dates['fromDate']->toDateString(),
+                'toDate' => $dates['toDate']->toDateString(),
                 'groupBy' => $request->groupBy ?? null,
                 'shops' => $request->shops ?? null,
                 'users' => $request->users ?? null,
@@ -369,10 +368,10 @@ class ReportController extends Controller
         }
 
         if (isset($options['fromDate']) && isset($options['toDate'])) {
-         //   $isAValidDateRange = $options['toDate']->gt($options['fromDate']); // check if start date is less than end date
-         //   if ($isAValidDateRange) {
-                $tickets = $tickets->whereBetween('time', [$options['fromDate'], $options['toDate']]);
-         //    }
+            //   $isAValidDateRange = $options['toDate']->gt($options['fromDate']); // check if start date is less than end date
+            //   if ($isAValidDateRange) {
+            $tickets = $tickets->whereBetween('time', [$options['fromDate'], $options['toDate']]);
+            //    }
         }
 
         if (!$shouldGroupBy) {
@@ -973,18 +972,18 @@ class ReportController extends Controller
                 'dateFormat' => 'yy-mm-dd',
             ];
         }
-        if ($groupBy === 'date') {
+        if ($groupBy === 'date' && (!$toDate || !$fromDate)) {
             $dates = [
-                'fromDate' => $fromDate ?? \Carbon\Carbon::now()->subDays(7),
-                'toDate' => $toDate ?? \Carbon\Carbon::now(),
+                'fromDate' =>  \Carbon\Carbon::now()->subDays(7),
+                'toDate' =>  \Carbon\Carbon::now(),
                 'dateFormat' => 'yy-mm-dd',
             ];
         }
-     //   $diffInDays = $dates['fromDate']->diffInDays($dates['toDate']);
+        //   $diffInDays = $dates['fromDate']->diffInDays($dates['toDate']);
 
-       // if (!($diffInDays <= 31)) {
-       //     throw new Exception('Period cannot be bigger than a month');
-       // }
+        // if (!($diffInDays <= 31)) {
+        //     throw new Exception('Period cannot be bigger than a month');
+        // }
 
         return $dates;
     }
