@@ -26,7 +26,6 @@ import { Line } from "@/components/Chart";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import { useTranslation } from "@pg-ui/i18n";
-import { formatTime } from "@pg-ui/i18n";
 
 const DatePicker = dynamic(() => import("react-datepicker"), { ssr: false });
 
@@ -69,7 +68,7 @@ const dashboard: FC = ({ asidePanel }: any) => {
   const [todayReportData, setTodayReportData] = useState({
     turnover: "0",
     profit: "0",
-    shopsCount: "0",
+    shopsCount: 0,
   });
 
   useEffect(() => {
@@ -171,7 +170,7 @@ const dashboard: FC = ({ asidePanel }: any) => {
           setTodayReportData({
             turnover: responseData.reports[0].in,
             profit: responseData.reports[0].profit,
-            shopsCount: responseData.reports[0].active,
+            shopsCount: responseData.reports[0].active_shops,
           });
           setIsWaitingForResponse(false);
         }
@@ -229,10 +228,9 @@ const dashboard: FC = ({ asidePanel }: any) => {
         date.setDate(date.getDate() - idx);
         return date;
       })
-      .map((x) => ({
-        date: formatDate([x.getFullYear(), x.getMonth(), x.getDate()], {
-          options: { year: "numeric" },
-        }),
+      .map((x) => (
+       console.log(x),{
+        date: formatDateDatepicker(x.toString()),
         active_shops: 0,
         gross_in: 0,
         sumIn: "0",
@@ -245,9 +243,10 @@ const dashboard: FC = ({ asidePanel }: any) => {
 
     const reportsDatas = new Map();
 
-    tickets.reports.forEach((report) => reportsDatas.set(report.date, report));
+    tickets.reports.forEach((report) => reportsDatas.set(formatDateDatepicker(report.date), report));
 
     datesInDateRange.forEach((report) => {
+      console.warn(report.date ,reportsDatas)
       const exists = reportsDatas.has(report.date);
       if (!exists) {
         reportsDatas.set(report.date, report);
@@ -390,11 +389,6 @@ const dashboard: FC = ({ asidePanel }: any) => {
                   />
                   <footer style={{ display: "flex", justifyContent: "end" }}>
                     <Link legacyBehavior href={"/tickets"}>
-                      {/* <Chip
-                        lead="Games"
-                        value="Dogs6, Horses6"
-                        className={isDarkMode ? "is-dark" : ""}
-                      /> */}
                       <button
                         className={isDarkMode ? "p-chip is-dark" : "p-chip "}
                       >
