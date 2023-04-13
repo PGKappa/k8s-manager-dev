@@ -50,8 +50,7 @@ const CELL_RENDERER__TRANSACTION_USERS = {
   id: (item) => item.id,
   user_id: (item) => item.user_id,
   type: (item) => item.type,
-  time: (item) => formatTime(item.time, {locale: "en-US"}),
-  // time: (item) => formatTime(item.time, item.intl),
+  time: (item) => formatTime(item.time, item.intl),
   // currency_id: (item) => item.currency_id,
   amount_in: (item) => formatStake(item.amount_in, item.intl),
   amount_out: (item) => formatStake(item.amount_out, item.intl),
@@ -62,8 +61,7 @@ const CELL_RENDERER__TRANSACTION_SHOPS = {
   id: (item) => item.id,
   user_id: (item) => item.user_id,
   type: (item) => item.type,
-  time: (item) => formatTime(item.time, {locale: "en-US"}),
-  // time: (item) => formatTime(item.time, item.intl),
+  time: (item) => formatTime(item.time, item.intl),
   // currency_id: (item) => item.currency_id,
   amount_in: (item) => formatStake(item.amount_in, item.intl),
   amount_out: (item) => formatStake(item.amount_out, item.intl),
@@ -325,16 +323,16 @@ const PageTicketList: FC = ({ asidePanel }: any) => {
 
   const onFromDateChange = useCallback(
     (fromDate: Date) => {
-      let newMaxToDate = new Date(fromDate);
-      newMaxToDate.setMonth(newMaxToDate.getMonth() + 1);
-      let newToDate = requestParams.toDate;
-      if (requestParams.toDate > newMaxToDate) {
-        newToDate = newMaxToDate;
-      }
+      // let newMaxToDate = new Date(fromDate);
+      // newMaxToDate.setMonth(newMaxToDate.getMonth() + 1);
+      // let newToDate = requestParams.toDate;
+      // if (requestParams.toDate > newMaxToDate) {
+      //   newToDate = newMaxToDate;
+      // }
       setRequestParams({
         ...requestParams,
         fromDate: formatDateDatepicker(fromDate),
-        toDate: newToDate,
+        // toDate: newToDate,
       });
     },
     [requestParams]
@@ -342,15 +340,15 @@ const PageTicketList: FC = ({ asidePanel }: any) => {
 
   const onToDateChange = useCallback(
     (toDate: Date) => {
-      let newMinFromDate = new Date(toDate);
-      newMinFromDate.setMonth(newMinFromDate.getMonth() - 1);
-      let newFromDate = requestParams.fromDate;
-      if (requestParams.fromDate < newMinFromDate) {
-        newFromDate = newMinFromDate;
-      }
+      // let newMinFromDate = new Date(toDate);
+      // newMinFromDate.setMonth(newMinFromDate.getMonth() - 1);
+      // let newFromDate = requestParams.fromDate;
+      // if (requestParams.fromDate < newMinFromDate) {
+      //   newFromDate = newMinFromDate;
+      // }
       setRequestParams({
         ...requestParams,
-        fromDate: newFromDate,
+        // fromDate: newFromDate,
         toDate: formatDateDatepicker(toDate),
       });
     },

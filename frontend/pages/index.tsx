@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState, FC } from "react";
+import React, { useCallback , useContext, useEffect,useMemo, useState, FC } from "react";
 import { ThemeContext, TourContext } from "@/context";
 import Loader from "@/components/Loader";
 import {
@@ -51,8 +51,8 @@ const dashboard: FC = ({ asidePanel }: any) => {
   const currentWeekinPHPFormat = getCurrentWeekinPHPFormat(),
     [weeklyReportDate, setWeeklyReportDate] = useState(currentWeekinPHPFormat),
     [weeklyReportChartDates, setWeeklyReportChartDates] = useState({
-      fromDate: "",
-      toDate: "",
+      fromDate: getTodayDate(7),
+      toDate: todaysDate,
     });
   // [activeShopsChartDates, setActiveShopsChartDates] = useState({
   //   fromDate: "",
@@ -71,6 +71,7 @@ const dashboard: FC = ({ asidePanel }: any) => {
     profit: "0",
     shopsCount: "0",
   });
+
   useEffect(() => {
     // if (isMounted.current) return;
     if (isWaitingForResponse) {
@@ -186,7 +187,7 @@ const dashboard: FC = ({ asidePanel }: any) => {
     });
   };
 
-  const formatDateDatepicker = (date) => {
+  const formatDateDatepicker = useCallback((date: string) => {
     var d = new Date(date),
       month = "" + (d.getMonth() + 1),
       day = "" + d.getDate(),
@@ -196,7 +197,7 @@ const dashboard: FC = ({ asidePanel }: any) => {
     if (day.length < 2) day = "0" + day;
 
     return `${day}/${month}/${year}`;
-  };
+  }, []);
 
   function createReportChartData(tickets) {
     let dataProfit = [
@@ -248,7 +249,6 @@ const dashboard: FC = ({ asidePanel }: any) => {
 
     datesInDateRange.forEach((report) => {
       const exists = reportsDatas.has(report.date);
-
       if (!exists) {
         reportsDatas.set(report.date, report);
       }
@@ -284,7 +284,7 @@ const dashboard: FC = ({ asidePanel }: any) => {
         data: quicksort(dataProfit, (x) => x.date),
       },
       {
-        label: "Summary in",
+        label: "Summary In",
         data: quicksort(dataSumIn, (x) => x.date),
       },
       {
@@ -388,7 +388,7 @@ const dashboard: FC = ({ asidePanel }: any) => {
                       },
                     ]}
                   />
-                  <footer>
+                  <footer style={{ display: "flex", justifyContent: "end" }}>
                     <Link legacyBehavior href={"/tickets"}>
                       {/* <Chip
                         lead="Games"
@@ -412,7 +412,9 @@ const dashboard: FC = ({ asidePanel }: any) => {
                       : " weekly-report-container")
                   }
                 >
-                  <h4 className="u-sv-1">{t("dashboard.weekly_report.title")}</h4>
+                  <h4 className="u-sv-1">
+                    {t("dashboard.weekly_report.title")}
+                  </h4>
                   <input
                     className={isDarkMode ? "is-dark " : ""}
                     type="week"
@@ -427,19 +429,20 @@ const dashboard: FC = ({ asidePanel }: any) => {
                     }}
                   />
 
-                  <Button
-                    className={isDarkMode ? "is-dark" : ""}
-                    hasIcon={true}
-                    id={"weeklyDownload"}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      exportToCSv(weeklyReportDate);
-                    }}
-                  >
-                    <i className="p-icon--begin-downloading"></i>
-                    <span>{t("dashboard.weekly_report.button")}</span>
-                  </Button>
-                  <footer></footer>
+                  <footer style={{ display: "flex", justifyContent: "end" }}>
+                    <Button
+                      className={isDarkMode ? "is-dark" : ""}
+                      hasIcon={true}
+                      id={"weeklyDownload"}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        exportToCSv(weeklyReportDate);
+                      }}
+                    >
+                      <i className="p-icon--begin-downloading"></i>
+                      <span>{t("dashboard.weekly_report.button")}</span>
+                    </Button>
+                  </footer>
                 </div>
               </div>
             </div>
@@ -488,17 +491,25 @@ const dashboard: FC = ({ asidePanel }: any) => {
                   />
                 </div>
 
-                <Button
-                  className={isDarkMode ? "is-dark" : ""}
-                  hasIcon={true}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    requestReportChartData(weeklyReportChartDates);
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "end",
+                    width: "100%",
                   }}
                 >
-                  <i className="p-icon--change-version"></i>
-                  <span>{t("dashboard.chart.button")}</span>
-                </Button>
+                  <Button
+                    className={isDarkMode ? "is-dark" : ""}
+                    hasIcon={true}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      requestReportChartData(weeklyReportChartDates);
+                    }}
+                  >
+                    <i className="p-icon--change-version"></i>
+                    <span>{t("dashboard.chart.button")}</span>
+                  </Button>
+                </div>
               </Form>
             </Col>
             <Col
