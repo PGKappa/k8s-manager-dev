@@ -531,6 +531,10 @@ class ReportController extends Controller
                 $ticketStatusTexts = self::$TICKET_STATUS_TEXT;
             }
 
+            if (!isset($options['chunk']) && !isset($options['limit'])) {
+                $data = $ticketListData;
+            }
+
             $data = $data->map(function ($item) use ($ticketStatusTexts) {
                 $time = explode(' ', Carbon::parse($item->time)->format('Y m d H i s'));
                 $time[1] = $time[1] - 1;
@@ -550,21 +554,36 @@ class ReportController extends Controller
         }
 
         if ($isReportTypeTransaction) {
-            $totalSumPerPage = [
-                'id' => 'Page Total',
-                'amount_in' => FormatUtils::money(
-                    ($ticketListData->skip($skip)->take($limit)->where('statusId', '>=', Ticket::STATUS_ACTIVE)->sum('amount'))
-                        - ($ticketListData->skip($skip)->take($limit)->where('statusId', Ticket::STATUS_CANCELLED)->sum('amount_refund'))
-                        - ($ticketListData->skip($skip)->take($limit)->where('statusId', Ticket::STATUS_VOID)->sum('amount_refund'))
-                ),
-                'amount_out' => FormatUtils::money(
-                    $ticketListData->skip($skip)->take($limit)->whereIn('statusId', [Ticket::STATUS_WON, Ticket::STATUS_PAID])->sum('amount_won')
-                ),
-                'intl' => [
-                    // "timezone" => $ticket->timezone,
-                    'locale' => $options['userLanguage'],
-                ],
-            ];
+            if (!isset($options['chunk']) && !isset($options['limit'])) {
+                // $totalSum =
+                // dd($data->first()->amount_in);
+                $totalSumData = $data;
+                $totalSum = [
+                    'id' => 'Total',
+                    'amount_in' => FormatUtils::money($totalSumData->sum("amount_in")),
+                    'amount_out' => FormatUtils::money($totalSumData->sum("amount_out")),
+                    'intl' => [
+                        // "timezone" => $ticket->timezone,
+                        'locale' => "en-GB",
+                    ],
+                ];
+            } else {
+                $totalSumPerPage = [
+                    'id' => 'Page Total',
+                    'amount_in' => FormatUtils::money(
+                        ($ticketListData->skip($skip)->take($limit)->where('statusId', '>=', Ticket::STATUS_ACTIVE)->sum('amount'))
+                            - ($ticketListData->skip($skip)->take($limit)->where('statusId', Ticket::STATUS_CANCELLED)->sum('amount_refund'))
+                            - ($ticketListData->skip($skip)->take($limit)->where('statusId', Ticket::STATUS_VOID)->sum('amount_refund'))
+                    ),
+                    'amount_out' => FormatUtils::money(
+                        $ticketListData->skip($skip)->take($limit)->whereIn('statusId', [Ticket::STATUS_WON, Ticket::STATUS_PAID])->sum('amount_won')
+                    ),
+                    'intl' => [
+                        // "timezone" => $ticket->timezone,
+                        'locale' => $options['userLanguage'],
+                    ],
+                ];
+            }
         }
 
         return [
