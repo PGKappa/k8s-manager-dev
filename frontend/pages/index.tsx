@@ -243,7 +243,7 @@ const dashboard: FC = ({ asidePanel }: any) => {
 
     const reportsDatas = new Map();
 
-    tickets.reports.forEach((report) => reportsDatas.set(formatDateDatepicker(report.date), report));
+    tickets.reports.forEach((report) => reportsDatas.set(report.date, report));
 
     datesInDateRange.forEach((report) => {
       console.warn(report.date ,reportsDatas)
@@ -335,7 +335,7 @@ const dashboard: FC = ({ asidePanel }: any) => {
   }
 
   if (isWaitingForResponse) return <Loader />;
-
+  console.warn(reportChartData)
   return (
     <AppLayout asidePanel={asidePanel}>
       <Head>
@@ -421,21 +421,26 @@ const dashboard: FC = ({ asidePanel }: any) => {
                     onChange={(e) => {
                       setWeeklyReportDate(e.target.value);
                     }}
+                    style={{ marginBottom: "1.5em" }}
                   />
 
-                  <footer style={{ display: "flex", justifyContent: "end" }}>
-                    <Button
-                      className={isDarkMode ? "is-dark" : ""}
-                      hasIcon={true}
+<footer style={{ display: "flex", justifyContent: "end" , marginTop: "39.5px"}}>
+                    <button
+                      className={isDarkMode ? "p-chip is-dark" : "p-chip "}
+                      // hasIcon={true}
                       id={"weeklyDownload"}
                       onClick={(e) => {
                         e.preventDefault();
                         exportToCSv(weeklyReportDate);
                       }}
                     >
-                      <i className="p-icon--begin-downloading"></i>
-                      <span>{t("dashboard.weekly_report.button")}</span>
-                    </Button>
+                       <span className="p-chip__value" style={{ marginRight: "5px" }}>
+                        <i className="p-icon--begin-downloading"></i>
+                      </span>
+                      <span className="p-chip__value">
+                        {t("dashboard.weekly_report.button")}
+                      </span>
+                    </button>
                   </footer>
                 </div>
               </div>
