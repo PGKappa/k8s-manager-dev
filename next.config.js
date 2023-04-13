@@ -22,7 +22,7 @@ module.exports = {
   env: {
     PG_UI__PGV__ICONS_PUBLISH_PATH: "/var/www/public/assets",
     PG_UI__PGV__ICONS_PUBLIC_PATH: "/manager",
-    FRONTEND_VERSION: "3.0.27",
+    FRONTEND_VERSION: "3.0.28",
   },
   reactStrictMode: true,
   webpack: (config, options) => {
