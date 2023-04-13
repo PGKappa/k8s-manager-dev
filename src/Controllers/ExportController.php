@@ -31,34 +31,37 @@ class ExportController extends Controller
             ?? \Carbon\Carbon::now()->endOfWeek()->toDateTimeString();
 
         $reports = ReportController::getReport([
-            'type' => 'summary',
-            'groupBy' => 'shop',
-            'fromDate' => Carbon::parse($fromDate),
-            'toDate' => Carbon::parse($toDate),
+            // 'type' => 'summary',
+            // 'groupBy' => 'shop',
+            "type" => "transaction",
+            'fromDate' => $fromDate,
+            'toDate' => $toDate,
             'user' => $request->user('manager'),
+            "userLanguage" => "en-GB",
+            "mode" => "transaction"
         ]);
-        // return response()->json($reports);
 
-        $columns = ['ShopID', 'In', 'Out', 'Profit'];
-
+        $columns = ['User', 'TicketId', 'In', "Out", 'Profit'];
+        // dd($reports);
         $callback = function () use ($reports, $columns) {
             $file = fopen('php://output', 'w');
             fputcsv($file, $columns);
 
             foreach ($reports['reports'] as $report) {
-                $row['ShopID'] = $report['shop_id'];
-                $row['In'] = $report['sumIn'];
-                $row['Out'] = $report['sumOut'];
-                $row['Profit'] = $report['concatPercentage'];
+                $row['User'] = $report['user_id'];
+                $row["TicketId"] = $report['external_id'];
+                $row["In"] = $report["amount_in"];
+                $row["Out"] = $report["amount_out"];
+                $row["Time"] = $report["Time"];
 
-                fputcsv($file, [$row['ShopID'], $row['In'], $row['Out'], $row['Profit']]);
+                fputcsv($file, [$row['User'], $row['TicketId'], $row['In'], $row['Out'], $row["Time"]]);
             }
+            fputcsv($file, ["Total", "", $reports["totalSum"]['amount_in'], $reports["totalSum"]['amount_out'], ""]);
 
             fclose($file);
         };
 
         return response()->stream($callback, 200, $headers);
-        // return Response::download($callback,"dadad.csv", $headers);
 
         return response()->json([
             'fileName' => $fileName,
