@@ -44,7 +44,7 @@ const CELL_RENDERER__TRANSACTION = {
 };
 
 const CELL_RENDERER__SUMMARY = {
-  active: (item) => item.active,
+  active: (item) => item.active_shops,
   in: (item) => formatStake(item.in, item.intl),
   out: (item) => formatStake(item.out, item.intl),
   profit: (item) => formatStake(item.profit, item.intl),
