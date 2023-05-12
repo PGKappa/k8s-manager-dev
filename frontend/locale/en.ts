@@ -1,5 +1,4 @@
 export const enDict = {
-  // dict: new Dict().setData({
   login: {
     title: "Login",
     username: "Username",
@@ -28,8 +27,11 @@ export const enDict = {
       turnover: "Turnover",
       profit: "Profit",
       shopcount: "Active",
-      dogs6: "Dogs 6,",
+      dogs6: "Dogs 6",
       horses6: "Horses 6",
+      in: "In",
+      out: "Out",
+      // profit: "Profit",
     },
     weekly_report: {
       title: "Download Weekly Report",

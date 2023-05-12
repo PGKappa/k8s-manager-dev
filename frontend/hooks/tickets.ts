@@ -67,13 +67,13 @@ export function requestTicketList({
     });
 }
 
-enum TicketSummaryGroupBy {
+export enum TicketSummaryGroupBy {
   shop = "shop",
   operator = "operator",
   date = "date",
 }
 
-type RequestTicketSummaryArgs = {
+export type RequestTicketSummaryArgs = {
   params: {
     groupBy?: TicketSummaryGroupBy;
     fromDate: string;
@@ -271,5 +271,41 @@ export function requestTicketShops({
     })
     .catch((error) => {
       onError(error.response.data);
+    });
+}
+export type RequestDailyReportSummaryResponse = {
+  dailyReport: {
+    dogs6:{
+      in: string, 
+      out:string, 
+      profit:string, 
+    } 
+    horses6:{
+      in:string, 
+      out:string, 
+      profit:string, 
+    } 
+    total:{
+      in:string, 
+      out:string, 
+      profit:string, 
+    }  
+  }[]
+}
+
+export function requestDailyReportSummary({
+  params,
+  onSuccess,
+  onError,
+}: RequestTicketListArgs) {
+  axios
+    .get("/api/mui/manager/tickets/daily", { params: params })
+    .then((response) => {
+      const res: RequestDailyReportSummaryResponse = response.data;
+      onSuccess(res);
+    })
+    .catch((error) => {
+      console.warn(error);
+        onError(error.response.data);
     });
 }

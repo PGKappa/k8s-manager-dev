@@ -66,6 +66,7 @@ Route::group(['middleware' => [
     Route::prefix('api/mui/manager')->group(function () {
         // Reports/Accounting/Tickets
         Route::get('/tickets', [PGVirtual\Manager\Controllers\ReportController::class, 'index'])->name('manager-reports');
+        Route::get('/tickets/daily' , [ReportController::class, 'getDailyReport'])->name('reports.dailysum');
         Route::get('/tickets/{id}', [PGVirtual\Manager\Controllers\ReportController::class, 'show'])->name('manager-reports.show');
         Route::get('/autocomplete/shops', [PGVirtual\Manager\Controllers\ReportController::class, 'filterSearch'])->name('manager-reports.shops');
 

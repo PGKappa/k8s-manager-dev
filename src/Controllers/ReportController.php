@@ -383,7 +383,7 @@ class ReportController extends Controller
         $ticketList = [];
 
         if ($isReportTypeTransaction) {
-            $ticketList = self::getTicketListData($tickets, $options['userLanguage']);
+            $ticketList = self::getTicketListData($tickets, $options['userLanguage'], $options['divideByGames'] ?? false);
 
             if ($shouldGroupBy) {
                 // type = transaction and groupby = users doesnt get in here
@@ -679,6 +679,8 @@ class ReportController extends Controller
      * Display the specified resource.
      *
      * @param  int  $id
+     * @param Request $request
+     * 
      * @return \Illuminate\Http\Response
      */
     public function show($id, Request $request)
@@ -813,7 +815,7 @@ class ReportController extends Controller
         }
     }
 
-    public static function getTicketListData($tickets, $userLanguage)
+    public static function getTicketListData($tickets, $userLanguage, $divideGames)
     {
         $ticketList = $tickets->select(
             'id',
@@ -830,9 +832,10 @@ class ReportController extends Controller
             'amount_refund',
             'status',
             'ticketbody',
+            "eventlist"
         );
         $currencies = Currency::get()->keyBy('id')->toArray();
-        $ticketList = $ticketList->get()->filter(function ($ticket) use ($userLanguage, $currencies) {
+        $ticketList = $ticketList->get()->filter(function ($ticket) use ($userLanguage, $currencies, $divideGames) {
             if ($ticket->status >= Ticket::STATUS_ACTIVE) { // ticket is created
                 $ticket->amount_in = $ticket->amount;
                 //     - ($ticket->status === Ticket::STATUS_CANCELLED ? $ticket->amount_refund : 0) -
@@ -856,6 +859,14 @@ class ReportController extends Controller
                 // "timezone" => $ticket->timezone,
                 'locale' => "en_GB",
             ];
+
+            if ($divideGames) {
+                $data = self::getWinPerTicket($ticket);
+                // dd($data);
+                foreach ($data as $key => $game) {
+                    $ticket[$key] = $game;
+                }
+            }
 
             return $ticket;
         });
@@ -1026,11 +1037,266 @@ class ReportController extends Controller
         ];
     }
 
-    public function getModePerPageAndAllTimeTotal($fromDate = null, $toDate = null, $user = null)
+    /**
+     * Display the specified resource.
+     *
+     * @param  int  $channelId
+     * 
+     * @return \PGVirtual\Core\Models\Channel
+     */
+    private static function getChannel($channelId)
     {
-        return $date = [
-            'totalPerPage' => [],
-            'allTimeTotal' => [],
+        static $channels = [];
+
+        if (!isset($channels[$channelId])) {
+            $channel = \PGVirtual\Core\Models\Channel::findOrFail($channelId);
+            if (!$channel) {
+                throw new Exception('Channel (id: ' . $channelId . ') not found.');
+            }
+            $channels[$channelId] = $channel;
+        }
+
+        return $channels[$channelId];
+    }
+
+    /**
+     * Display the specified resource.
+     *
+     * @param  int  $gameId
+     * 
+     * @return \PGVirtual\Core\Models\Game
+     */
+    private static function getGame($gameId)
+    {
+        static $games = [];
+
+        if (!isset($games[$gameId])) {
+            $game = \PGVirtual\Core\Models\Game::findOrFail($gameId);
+            if (!$game) {
+                throw new Exception('Game (id: ' . $gameId . ') not found.');
+            }
+            $games[$gameId] = $game;
+        }
+
+        return $games[$gameId];
+    }
+
+    public static function calculateWinPerTicket($tickets)
+    {
+        $totalCache = [
+            "totIn" => 0,
+            "totOut" => 0,
+            "totProfit" => 0,
+            // dogos
+            "totInDogs6" => 0,
+            "totOutDogs6" => 0,
+            "totProfitDogs6" => 0,
+            // cats
+            "totInHorses6" => 0,
+            "totOutHorses6" => 0,
+            "totProfitHorses6" => 0,
         ];
+
+        foreach ($tickets as $ticket) {
+            $eventList = json_decode($ticket->eventlist, 1);
+            $eventsData = [];
+            foreach ($eventList as $event) {
+                [$palimpsestId, $eventId] = explode("-", $event);
+                if (empty($eventsData[$palimpsestId][$eventId])) {
+                    $eventsData[$palimpsestId][$eventId] = \PGVirtual\Core\Models\Event::where('int_pal_id', $palimpsestId)
+                        ->where("int_event_id", $eventId)
+                        ->first();
+                }
+            }
+
+            $ticketJson = json_decode($ticket->ticketbody, 1);
+
+            $totInDogs6 = 0;
+            $totInHorses6 = 0;
+
+            $totOutDogs6 = 0;
+            $totOutHorses6 = 0;
+
+            foreach ($ticketJson['ticketinfo'] as $grp => $combinations) { // the array after ticketinfo                  
+                foreach ($combinations as $combination) { // combinations
+                    $stakePerComb = $combination['stakePerComb']; // total amount on bet divided on every combination 
+                    foreach ($combination['combination'] as $bet) { // selections
+                        // dd($bet, $eventsData);
+                        $event = $eventsData[$bet["palimpsestId"]][$bet['eventId']];
+                        if (!$event) {
+                            throw new Exception('Something went wrong.');
+                        }
+
+                        $channel = self::getChannel($event->channel_id);
+                        $game = self::getGame($channel->game_id);
+                        $gameCode = $game->name . $game->racers;
+
+                        $amountOut = self::amountWonWithBet($bet, $event, $stakePerComb);
+
+                        if ($gameCode == 'dogs6') {
+                            $totInDogs6 += $stakePerComb;
+                            $totOutDogs6 += $amountOut;
+                        } else if ($gameCode == 'horses6') {
+                            $totInHorses6 += $stakePerComb;
+                            $totOutHorses6 += $amountOut;
+                        } else {
+                            throw new Exception('Game not supported.');
+                        }
+                    }
+                }
+            }
+
+            $totIn = $totInDogs6 + $totInHorses6;
+            $totOut = $totOutDogs6 + $totOutHorses6;
+            $totProfit = $totIn - $totOut;
+
+            $totProfitDogs6 = $totInDogs6 - $totOutDogs6;
+            $totProfitHorses6 = $totInHorses6 - $totOutHorses6;
+
+            $totalCache = [
+                "totIn" => round($totalCache['totIn'] + $totIn, 2),
+                "totOut" => $totalCache['totOut'] + $totOut,
+                "totProfit" => $totalCache['totProfit']  + $totProfit,
+
+                "totInDogs6" => $totalCache["totInDogs6"] + $totInDogs6,
+                "totOutDogs6" => $totalCache["totOutDogs6"] + $totOutDogs6,
+                "totProfitDogs6" => $totalCache['totProfitDogs6'] + $totProfitDogs6,
+
+                "totInHorses6" => $totalCache["totInHorses6"] + $totInHorses6,
+                "totOutHorses6" => $totalCache["totOutHorses6"] + $totOutHorses6,
+                "totProfitHorses6" => $totalCache['totProfitHorses6'] + $totProfitHorses6,
+            ];
+        }
+        return $totalCache;
+    }
+
+    public static function amountWonWithBet($bet, $event, $stakePerComb)
+    {
+        $winComb = $stakePerComb;
+        if (Ticket::isWinning($event, $bet['market'], $bet['selection'])) {
+            $winComb *= $bet['odds'];
+        } elseif ($event->status == Event::STATUS_VOID) {
+            $winComb *= 1;
+        } else {
+            $winComb *= 0;
+        }
+
+        return $winComb;
+    }
+
+    public function getDailyReport(Request $request)
+    {
+        $loggedInUser = $request->user('manager');
+        if (!$loggedInUser) {
+            throw new Exception("Unauthenticated");
+        }
+
+        $reports = self::getReport([
+            "type" => "transaction",
+            'fromDate' =>  Carbon::now()->startOfDay(),
+            'toDate' => Carbon::now()->endOfDay(),
+            'user' => $loggedInUser,
+            "userLanguage" => "en-GB",
+            "mode" => "transaction",
+        ]);
+
+        $dailyReportData = self::calculateWinPerTicket($reports['reports']);
+
+        return response()->json([
+            "dailyReport" => [
+                "dogs6" => [
+                    "in" => round($dailyReportData["totInDogs6"], 1),
+                    "out" => round($dailyReportData["totOutDogs6"], 2),
+                    "profit" => round($dailyReportData["totProfitDogs6"], 2),
+                ],
+                "horses6" => [
+                    "in" => round($dailyReportData["totInHorses6"], 1),
+                    "out" => round($dailyReportData["totOutHorses6"], 2),
+                    "profit" => round($dailyReportData["totProfitHorses6"], 2),
+                ],
+                "total" => [
+                    "in" => round($dailyReportData["totIn"], 2),
+                    "out" => round($dailyReportData["totOut"], 2),
+                    "profit" => round($dailyReportData["totProfit"], 2),
+                ]
+            ],
+            // $dailyReportData
+        ]);
+    }
+
+
+    public static function getWinPerTicket($ticket)
+    {
+        $winTotal = 0;
+        $betTotal = 0;
+        // $ticket = Ticket::findOrFail(1);// test
+        $ticketBody = $ticket->getBody(); // makes DecodedTicketBoy key in atributes
+        $eventList = json_decode($ticket->eventlist);
+
+        $eventCache = [];
+        foreach ($eventList as $rawEvent) {
+            [$palimpsestId, $eventId] = explode('-', $rawEvent);
+            if (empty($eventCache[$palimpsestId][$eventId])) {
+                $eventCache[$palimpsestId][$eventId] = Event::where('int_pal_id', $palimpsestId)
+                    ->where('int_event_id', $eventId)
+                    ->first();
+            }
+        }
+        // $amountWin = $ticket->winCalculation(); // ticket 1 dogs6 - 2.925568 "1000000056-219"  total : 5.074032 "dogs6" => 2.925568  "horses6" => 2.148464
+
+        $categorizeByGame = [];
+        foreach ($ticketBody['ticketinfo'] as $grp => $combinations) {
+            foreach ($combinations as $comb) {
+
+                $winComb = $comb['stakePerComb'];
+                $selections = $comb['combination'];
+                $opt = [];
+                foreach ($selections as $sel) {
+                    $selEvent = $eventCache[$sel['palimpsestId']][$sel['eventId']];
+                    $selEventOpts = json_decode($selEvent->opts);
+
+                    if ($selEvent->time < Carbon::now()) {
+
+                        if (empty($opt['channel'])) {
+                            $opt['channel'] = Channel::where('id', $selEvent->channel_id)->first();
+                        }
+                        if (empty($opt['game'])) {
+                            $opt['game'] = Game::where('id', $opt['channel']->game_id)->first();
+                        }
+
+                        $mTicketUtils = 'PGVirtual\\Game' . ucfirst(strtolower($opt['game']->name)) . '\\Libraries\\TicketUtils';
+
+                        $isWining = $mTicketUtils::isWinning([
+                            'event' => $selEvent,
+                            'market' =>  $sel['market'],
+                            'selection' => $sel['selection'],
+                            'numRacers' => $opt['game']->racers
+                        ]);
+                        if ($isWining) {
+                            $winComb *= $sel['odds'];
+                        } elseif ($selEvent->status == Event::STATUS_VOID) {
+                            $winComb *= 1;
+                        } else {
+                            $winComb *= 0;
+                        }
+                        $betTotal += $comb['stakePerComb'];
+                    }
+                }
+                if ($grp == 1) {
+                    $winComb *= $selEventOpts->multi;
+                }
+
+                $winTotal += $winComb;
+            }
+
+            $name = $opt['game']->name . $opt['game']->racers;
+
+            $categorizeByGame[$name]["amountOut"] = round($winTotal, 2);
+            $categorizeByGame[$name]["amountIn"] = round($betTotal, 2);
+
+            $winTotal = 0;
+        }
+
+        return $categorizeByGame;
     }
 }

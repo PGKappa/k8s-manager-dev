@@ -1,23 +1,17 @@
-import React, { useCallback , useContext, useEffect,useMemo, useState, FC } from "react";
-import { ThemeContext, TourContext } from "@/context";
+import React, { useCallback, useContext, useEffect, useState, FC } from "react";
+import { ThemeContext } from "@/context";
 import Loader from "@/components/Loader";
-import {
-  Strip,
-  Form,
-  Chip,
-  MainTable,
-  Col,
-  Button,
-} from "@canonical/react-components";
+import { Strip, Form, MainTable, Col } from "@canonical/react-components";
 import {
   requestTicketList,
-  RequestTicketListResponse,
-  requestTicketSummary,
+  requestDailyReportSummary,
+  RequestDailyReportSummaryResponse,
   RequestTicketSummaryResponse,
+  TicketSummaryGroupBy,
 } from "@/hooks/tickets";
 import { requestExportReports } from "@/hooks/exports";
 import { getCurrentWeekinPHPFormat, getTodayDate, quicksort } from "@/utils";
-import { formatDate } from "@pg-ui/i18n";
+// import { formatDate } from "@pg-ui/i18n";
 import AppLayout from "@/components/Layouts/AppLayout";
 import Head from "next/head";
 import { useAuth } from "@/hooks/auth";
@@ -26,8 +20,51 @@ import { Line } from "@/components/Chart";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import { useTranslation } from "@pg-ui/i18n";
+// import { formatTime } from "@pg-ui/i18n";
 
 const DatePicker = dynamic(() => import("react-datepicker"), { ssr: false });
+
+type SummaryDateResponseReport = {
+  date: string;
+  active_shops: number;
+  gross_in: string;
+  sumIn: string;
+  sumOut: string;
+  amountUnpaid: string;
+  sumProfit: string;
+  sumPercentage: string;
+  concatPercentage: string;
+};
+
+type SummaryDateResponse = {
+  mode: "summaryDate";
+  status: number;
+  pagination: {
+    total: number;
+    chunk: number;
+    limit: string;
+    last_chunk: number;
+  };
+  totalSum: {
+    user_id: string;
+    sumIn: string;
+    sumOut: string;
+    concatPercentage: string;
+    intl: {
+      locale: string;
+    };
+  };
+  totalSumOfPerPage: null;
+  reports: SummaryDateResponseReport[];
+  params: {
+    type: "summary";
+    fromDate: string;
+    toDate: string;
+    groupBy: "date";
+    shops: null;
+    users: null;
+  };
+};
 
 const dashboard: FC = ({ asidePanel }: any) => {
   const { user } = useAuth({ middleware: "auth" });
@@ -35,28 +72,21 @@ const dashboard: FC = ({ asidePanel }: any) => {
   const { isDarkMode } = useContext(ThemeContext),
     todaysDate = getTodayDate(),
     [isWaitingForResponse, setIsWaitingForResponse] = useState<boolean>(true),
+    [isWaitingForExport, setIsWaitingForExport] = useState<boolean>(false),
     [reportChartData, setReportChartData] = useState({
       chartData: [],
       fromDate: getTodayDate(7),
       toDate: todaysDate,
     });
 
-  //   const [activeShopsData, setActiveShopsData] = useState({
-  //     chartData: [],
-  //     fromDate: getTodayDate(7),
-  //     toDate: getTodayDate(),
-  //   });
-
   const currentWeekinPHPFormat = getCurrentWeekinPHPFormat(),
     [weeklyReportDate, setWeeklyReportDate] = useState(currentWeekinPHPFormat),
+    [weeklyReportType, setWeekReportType] = useState(),
     [weeklyReportChartDates, setWeeklyReportChartDates] = useState({
       fromDate: getTodayDate(7),
       toDate: todaysDate,
     });
-  // [activeShopsChartDates, setActiveShopsChartDates] = useState({
-  //   fromDate: "",
-  //   toDate: "",
-  // });
+
   const { t } = useTranslation("");
 
   const [requestParams, setRequestParams] = useState({
@@ -66,10 +96,20 @@ const dashboard: FC = ({ asidePanel }: any) => {
     chunk: 1,
   });
   const [todayReportData, setTodayReportData] = useState({
-    turnover: "0",
-    profit: "0",
-    shopsCount: 0,
-  });
+      dogs6: {
+        in: 0,
+        out: 0,
+        profit: 0,
+      },
+      horses6: {
+        in: 0,
+        out: 0,
+        profit: 0,
+      },
+    }),
+    [todayReportDataIsLoading, setTodayReportDataIsLoading] =
+      useState<boolean>(true);
+
   const formatDateDatepicker = useCallback((date: string | Date) => {
     let d: Date;
     if (typeof date == "string") {
@@ -103,8 +143,7 @@ const dashboard: FC = ({ asidePanel }: any) => {
       let datesInDateRange = Array.from({ length: numOfDays }, () => new Date())
         .map((date, idx) => {
           date.setDate(date.getDate() - idx);
-          console.warn(date);
-          // return formatDateDatepicker(date)
+
           return date;
         })
         .map((date) => {
@@ -125,12 +164,12 @@ const dashboard: FC = ({ asidePanel }: any) => {
       const reportsDatas = new Map<string, SummaryDateResponseReport>();
 
       tickets.reports.forEach((report: SummaryDateResponseReport) => {
-        console.warn("dateNotFOrmates",report.date); // printed
+        // console.warn("dateNotFOrmates", report.date); // printed
         let dateFormated = formatDateDatepicker(report.date); // getMonth is not a function , report.date = HOW WHEN ITS A STRING
-        console.warn("DateFormated",dateFormated); // not printed
+        // console.warn("DateFormated", dateFormated); // not printed
         reportsDatas.set(dateFormated, {
           ...report,
-          formattedDate: dateFormated
+          formattedDate: dateFormated,
         });
       });
 
@@ -142,15 +181,17 @@ const dashboard: FC = ({ asidePanel }: any) => {
       //   }
       // });
 
-      datesInDateRange = datesInDateRange.map((report: SummaryDateResponseReport) => {
-        const exists = reportsDatas.has(report.formattedDate);
-        if (exists) {
-          return reportsDatas.get(report.formattedDate);
+      datesInDateRange = datesInDateRange.map(
+        (report: SummaryDateResponseReport) => {
+          const exists = reportsDatas.has(report.formattedDate);
+          if (exists) {
+            return reportsDatas.get(report.formattedDate);
+          }
+          return report;
         }
-        return report;
-      });
+      );
 
-      console.warn("datesInDateRange ",datesInDateRange)
+      console.warn("datesInDateRange ", datesInDateRange);
       // reportsDatas.forEach((item) => {
       //   dataProfit.push({
       //     date: item.date,
@@ -184,26 +225,29 @@ const dashboard: FC = ({ asidePanel }: any) => {
         });
       });
 
-      console.warn("il DATAPROFITO",dataProfit);
       const data = [
         {
           label: "Profit",
           // data: dataProfit
-          data: quicksort(dataProfit, (x) => new Date(x.notFormattedDate).getTime())
+          data: quicksort(dataProfit, (x) =>
+            new Date(x.notFormattedDate).getTime()
+          ),
         },
         {
           label: "Summary In",
           // data: dataSumIn
-          data: quicksort(dataSumIn, (x) => new Date(x.notFormattedDate).getTime()),
+          data: quicksort(dataSumIn, (x) =>
+            new Date(x.notFormattedDate).getTime()
+          ),
         },
         {
           label: "Summary Out",
           // data: dataSumOut
-          data: quicksort(dataSumOut, (x) => new Date(x.notFormattedDate).getTime()),
+          data: quicksort(dataSumOut, (x) =>
+            new Date(x.notFormattedDate).getTime()
+          ),
         },
       ];
-
-
 
       setReportChartData({
         fromDate: tickets.params.fromDate,
@@ -270,59 +314,33 @@ const dashboard: FC = ({ asidePanel }: any) => {
     // isMounted.current = true;
   }, [isWaitingForResponse, requestReportChartData]);
 
-  //   const requestActiveShopsData = (args) => {
-  //     requestTicketList({
-  //       params: {
-  //         ...requestParams,
-  //         fromDate: args.fromDate,
-  //         toDate: args.toDate,
-  //       },
-  //       onSuccess: (res: RequestTicketListResponse) => {
-  //         if (res.reports.length > 0) {
-  //           createActiveShopsData(res);
-  //           setIsWaitingForResponse(false);
-  //           if (!isWaitingForResponse) {
-  //             toast("Active shops chart updated!", {
-  //               hideProgressBar: true,
-  //               autoClose: 2000,
-  //               type: "success",
-  //             });
-  //           }
-  //         }
-  //       },
-  //       onError: (e) => {
-  //         setIsWaitingForResponse(false);
-
-  //         toast("Failed to update character", {
-  //           hideProgressBar: true,
-  //           autoClose: 2000,
-  //           type: "error",
-  //         });
-  //       },
-  //     });
-  //   };
-
-  const requestTodaysProfitData = (args: {fromDate: string, toDate: string, groupBy: TicketSummaryGroupBy}) => {
+  const requestTodaysProfitData = (args: {
+    fromDate: string;
+    toDate: string;
+    // groupBy: TicketSummaryGroupBy;
+  }) => {
     // Active shops
     // console.warn(args);
-    requestTicketSummary({
+    requestDailyReportSummary({
       params: {
         fromDate: args.fromDate,
         toDate: args.toDate,
-        type: "summary",
-        groupBy: args.groupBy,
+        // type: "summary",
+        // groupBy: args.groupBy,
       },
-      onSuccess: (res: RequestTicketSummaryResponse) => {
+      onSuccess: (res: RequestDailyReportSummaryResponse) => {
         const responseData = res;
-        // console.warn(responseData);
-        if (res.reports.length > 0) {
-          setTodayReportData({
-            turnover: responseData.reports[0].in,
-            profit: responseData.reports[0].profit,
-            shopsCount: responseData.reports[0].active_shops,
-          });
-          setIsWaitingForResponse(false);
-        }
+
+        // if (res.reports.length > 0) {
+        // setTodayReportData({
+        //   turnover: responseData.reports[0].in,
+        //   profit: responseData.reports[0].profit,
+        //   shopsCount: responseData.reports[0].active_shops,
+        // });
+        setTodayReportData(responseData.dailyReport);
+        setIsWaitingForResponse(false);
+        setTodayReportDataIsLoading(false);
+        // }
       },
       onError: (e) => {
         setIsWaitingForResponse(false);
@@ -335,43 +353,30 @@ const dashboard: FC = ({ asidePanel }: any) => {
     });
   };
 
-  //   function createActiveShopsData(tickets) {
-  //     let dataActiveShops = [];
-
-  //     tickets.reports.map((item, idx) => {
-  //       dataActiveShops[idx] = {
-  //         date: item.date,
-  //         params: Number(item.active_shops),
-  //       };
-  //     });
-  //     const data = [
-  //       {
-  //         label: "Active Shops",
-  //         data: dataActiveShops,
-  //       },
-  //     ];
-
-  //     setActiveShopsData({
-  //       fromDate: tickets.params.fromDate,
-  //       toDate: tickets.params.toDate,
-  //       chartData: data,
-  //     });
-  //   }
-
-  function exportToCSv(week) {
+  function exportToCSv(week, eventType) {
+    setIsWaitingForExport(true);
+    if (!eventType) {
+      toast("Please select an event type all , dogs6 or horses6", {
+        hideProgressBar: true,
+        autoClose: 2000,
+        type: "error",
+      });
+      setIsWaitingForExport(false);
+    }
     requestExportReports({
-      params: { week: week },
+      params: { week: week, eventType: eventType },
       onSuccess: (res) => {
         // setIsWaitingExportForResponse(false);
+        setIsWaitingForExport(false);
       },
       onError: (e) => {
-        setIsWaitingForResponse(false);
+        setIsWaitingForExport(false);
       },
     });
   }
 
   if (isWaitingForResponse) return <Loader />;
-  console.warn(reportChartData);
+  console.warn(todayReportData);
   return (
     <AppLayout asidePanel={asidePanel}>
       <Head>
@@ -386,75 +391,160 @@ const dashboard: FC = ({ asidePanel }: any) => {
           <div className="p-panel__controls"></div>
         </div>
         <div className="p-panel__content ">
-          {/* {tour} */}
+          {/* new  */}
           <Strip bordered element="section" className={"u-no-padding--top"}>
             <div className="l-fluid-breakout">
               <div className="l-fluid-breakout__main is-full-width u-equal-height">
+                {/* card 1 */}
                 <div className={"p-card" + (isDarkMode ? "is-dark" : "")}>
-                  <h4 className="u-sv-1">{t("dashboard.today_card.title")}</h4>
-                  <MainTable
-                    headers={[
-                      {
-                        content: t("dashboard.today_card.turnover"),
-                      },
-                      {
-                        content: t("dashboard.today_card.profit"),
-                      },
-                      {
-                        content: t("dashboard.today_card.shopcount"),
-                      },
-                    ]}
-                    rows={[
-                      {
-                        columns: [
+                  <h4 className="u-sv-1">
+                    {t("dashboard.today_card.title")}{" "}
+                    {t("dashboard.today_card.dogs6")}
+                  </h4>
+
+                  {todayReportDataIsLoading ? (
+                    <div className="card-spinner">
+                      <i class="p-icon--spinner u-animation--spin"></i>
+                    </div>
+                  ) : (
+                    <div>
+                      <MainTable
+                        headers={[
                           {
-                            content: todayReportData.turnover,
-                            role: "rowheader",
+                            content: t("dashboard.today_card.in"),
                           },
                           {
-                            content: todayReportData.profit,
+                            content: t("dashboard.today_card.out"),
                           },
                           {
-                            content: todayReportData.shopsCount,
+                            content: t("dashboard.today_card.profit"),
                           },
-                        ],
-                      },
-                    ]}
-                  />
-                  <footer style={{ display: "flex", justifyContent: "end" }}>
-                    <Link legacyBehavior href={"/tickets"}>
-                      {/* <Chip
+                        ]}
+                        rows={[
+                          {
+                            columns: [
+                              {
+                                content: todayReportData.dogs6.in,
+                                role: "rowheader",
+                              },
+                              {
+                                content: todayReportData.dogs6.out,
+                              },
+                              {
+                                content: todayReportData.dogs6.profit,
+                              },
+                            ],
+                          },
+                        ]}
+                      />
+
+                      <footer
+                        style={{ display: "flex", justifyContent: "end" }}
+                      >
+                        <Link legacyBehavior href={"/tickets"}>
+                          {/* <Chip
                         lead="Games"
                         value="Dogs6, Horses6"
                         className={isDarkMode ? "is-dark" : ""}
                       /> */}
-                      <button
-                        className={isDarkMode ? "p-chip is-dark" : "p-chip "}
-                      >
-                        <span className="p-chip__value">
-                          {t("dashboard.today_card.dogs6")}
-                        </span>
-                        <span
-                          className="p-chip__value"
-                          style={{ marginLeft: "2px" }}
-                        >
-                          {t("dashboard.today_card.horses6")}
-                        </span>
-                      </button>
-                    </Link>
-                  </footer>
+                          <button
+                            className={
+                              isDarkMode ? "p-chip is-dark" : "p-chip "
+                            }
+                          >
+                            <span className="p-chip__value">
+                              {t("dashboard.today_card.dogs6")}
+                            </span>
+                          </button>
+                        </Link>
+                      </footer>
+                    </div>
+                  )}
                 </div>
-                <div
-                  className={
-                    "p-card" +
-                    (isDarkMode
-                      ? "-dark weekly-report-container"
-                      : " weekly-report-container")
-                  }
-                >
+                {/* card 1 */}
+                {/* card 2  */}
+                <div className={"p-card" + (isDarkMode ? "is-dark" : "")}>
+                  <h4 className="u-sv-1">
+                    {t("dashboard.today_card.title")}{" "}
+                    {t("dashboard.today_card.horses6")}
+                  </h4>
+                  {todayReportDataIsLoading ? (
+                    <div className="card-spinner">
+                      <i className="p-icon--spinner u-animation--spin"></i>
+                    </div>
+                  ) : (
+                    <div>
+                      <MainTable
+                        headers={[
+                          {
+                            content: t("dashboard.today_card.in"),
+                          },
+                          {
+                            content: t("dashboard.today_card.out"),
+                          },
+                          {
+                            content: t("dashboard.today_card.profit"),
+                          },
+                        ]}
+                        rows={[
+                          {
+                            columns: [
+                              {
+                                content: todayReportData.horses6.in,
+                                role: "rowheader",
+                              },
+                              {
+                                content: todayReportData.horses6.out,
+                              },
+                              {
+                                content: todayReportData.horses6.profit,
+                              },
+                            ],
+                          },
+                        ]}
+                      />
+                      <footer
+                        style={{ display: "flex", justifyContent: "end" }}
+                      >
+                        <Link legacyBehavior href={"/tickets"}>
+                          <button
+                            className={
+                              isDarkMode ? "p-chip is-dark" : "p-chip "
+                            }
+                          >
+                            {/* <span className="p-chip__value">
+                          {t("dashboard.today_card.dogs6")}
+                        </span> */}
+                            <span
+                              className="p-chip__value"
+                              style={{ marginLeft: "2px" }}
+                            >
+                              {t("dashboard.today_card.horses6")}
+                            </span>
+                          </button>
+                        </Link>
+                      </footer>
+                    </div>
+                  )}
+                </div>
+                {/* card 2 */}
+                {/* card 3 */}
+                <div className={"p-card" + (isDarkMode ? "is-dark" : "")}>
                   <h4 className="u-sv-1">
                     {t("dashboard.weekly_report.title")}
                   </h4>
+                  <select
+                    name="exampleSelect"
+                    id="weeklyReportType"
+                    onChange={(e) => {
+                      setWeekReportType(e.target.value);
+                    }}
+                  >
+                    <option value="">Select an event type</option>
+                    <option value="1">All</option>
+                    <option value="2">Dogs6</option>
+                    <option value="3">Horses6</option>
+                  </select>
                   <input
                     className={isDarkMode ? "is-dark " : ""}
                     type="week"
@@ -469,34 +559,38 @@ const dashboard: FC = ({ asidePanel }: any) => {
                     }}
                     style={{ marginBottom: "1.5em" }}
                   />
-
-                  <footer
-                    style={{
-                      display: "flex",
-                      justifyContent: "end",
-                      marginTop: "39.5px",
-                    }}
-                  >
+                  <footer style={{ display: "flex", justifyContent: "end" }}>
                     <button
                       className={isDarkMode ? "p-chip is-dark" : " p-chip "}
                       //   hasIcon={true}
                       id={"weeklyDownload"}
                       onClick={(e) => {
                         e.preventDefault();
-                        exportToCSv(weeklyReportDate);
+                        exportToCSv(weeklyReportDate, weeklyReportType);
                       }}
                     >
-                      <span className="p-chip__value" style={{ marginRight: "2px" }}>
-                        <i className="p-icon--begin-downloading"></i>{" "}
+                      <span
+                        className="p-chip__value"
+                        style={{ marginRight: "2px" }}
+                      >
+                        {isWaitingForExport ? (
+                          <i className="p-icon--spinner u-animation--spin"></i>
+                        ) : (
+                          <i className="p-icon--begin-downloading"></i>
+                        )}
                       </span>
-                      <span>{t("dashboard.weekly_report.button")}</span>
+                      <span className="p-chip__value">
+                        {t("dashboard.weekly_report.button")}
+                      </span>
                     </button>
                   </footer>
                 </div>
+                {/* card 3 */}
               </div>
             </div>
           </Strip>
-
+          {/* end new */}
+          {/* {tour} */}
           <Strip bordered element="section" includeCol={false} rowClassName="">
             <Col size={2}>
               <h3>{t("dashboard.chart.title")}</h3>
