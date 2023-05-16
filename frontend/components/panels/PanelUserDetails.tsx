@@ -139,7 +139,7 @@ const PanelUserDetails: FC<PanelUserDetailsProps> = ({
         onSubmit={handleUserUpdate}
         validations={formErrors}
       />
-      <Accordion
+      {/* <Accordion
         sections={[
           {
             content: (
@@ -152,7 +152,7 @@ const PanelUserDetails: FC<PanelUserDetailsProps> = ({
             title: t("user.panel.advanced.title"),
           },
         ]}
-      />
+      /> */}
     </div>
   );
 };

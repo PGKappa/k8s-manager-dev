@@ -212,7 +212,7 @@ const Sidebar = ({ showLogo }) => {
                         </Link>
                       </li>
 
-                      {/* <li  className="p-side-navigation__item l-fluid-breakout u-no-padding">
+                      <li  className="p-side-navigation__item l-fluid-breakout u-no-padding">
                         <Link href={"/users"} legacyBehavior>
                           <a
                             id={"sidemenu-user-button"}
@@ -228,7 +228,7 @@ const Sidebar = ({ showLogo }) => {
                             </span>
                           </a>
                         </Link>
-                      </li> */}
+                      </li>
 
                       <li className="p-side-navigation__item l-fluid-breakout u-no-padding">
                         <Link href={"/tickets"} legacyBehavior>
@@ -384,12 +384,34 @@ const Sidebar = ({ showLogo }) => {
                         </ul>
                       </li>
                       {/* locale start */}
-
                       <li className="p-side-navigation__item">
-                        <span className="u-has-icon" style={{ margin: 20 }}>
-                           English
+                        <button
+                          className="p-side-navigation__accordion-button"
+                          aria-expanded={isLanguageAccordionExpanded}
+                          onClick={() =>
+                            setLanguageAccordionExpanded(
+                              !isLanguageAccordionExpanded
+                            )
+                          }
+                        >
+                          <span className="u-has-icon">
+                            {/* <i className="p-icon--user is-light"></i> */}
+                            {/*    <img
+                              width="25"
+                              height="25"
+                              style={{ marginRight: "5px" }}
+                              src={`/manager/img/flags/${language.toLowerCase()}.png`}
+                            /> */}
+                            {language == "EN" ? "English" : "Italian"}
+                                                
                           </span>
-
+                        </button>
+                        <ul
+                          className="p-side-navigation__list"
+                          aria-expanded={isLanguageAccordionExpanded}
+                        >
+                          {getOptions(langs, language)}
+                        </ul>
                       </li>
                       {/* locale end */}
                     </ul>
