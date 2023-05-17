@@ -62,13 +62,13 @@ const FormUserCreate = ({
         value: "",
       },
       {
-        label: t("user.english"),
+        label: t("user.language.english"),
         value: "en-US",
       },
-      //   {
-      //     label: "Italian",
-      //     value: "it-IT",
-      //   },
+        {
+          label:  t("user.language.italian"),
+          value: "it-IT",
+        },
     ];
   useEffect(() => {
     setFormData({
@@ -141,7 +141,7 @@ const FormUserCreate = ({
       <PasswordToggle
         className={isDarkMode ? "is-dark" : ""}
         id="password-input"
-        label={t("user.password")}
+        label={t("user.panel.password")}
         type="button"
         onChange={(e) => {
           const newPassword = e.target.value;
@@ -156,7 +156,7 @@ const FormUserCreate = ({
       <PasswordToggle
         className={isDarkMode ? "is-dark" : ""}
         id="confirm-password-input"
-        label={t("user.confirm_password")}
+        label={t("user.panel.confirm_password")}
         type="button"
         onChange={(e) => {
           const newConfirmPassword = e.target.value;
